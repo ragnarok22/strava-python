@@ -12,8 +12,8 @@ A modern, fully-typed Python SDK for the [Strava API v3](https://developers.stra
 
 - Sync and async clients built on [httpx](https://www.python-httpx.org/)
 - Full type annotations and `py.typed` support
-- 32 API endpoints across 9 resource groups
-- 40+ dataclass models with automatic serialization
+- 34 API endpoints across 9 resource groups
+- 50+ dataclass models with automatic serialization
 - OAuth2 authentication with automatic token refresh
 - Lazy pagination iterators
 - Custom exception hierarchy with rate limit details
@@ -77,6 +77,19 @@ tokens = exchange_token(
 print(tokens.access_token, tokens.refresh_token, tokens.expires_at)
 ```
 
+### Refresh a token manually
+
+```python
+from strava import refresh_access_token
+
+tokens = refresh_access_token(
+    client_id="your_client_id",
+    client_secret="your_secret",
+    refresh_token="current_refresh_token",
+)
+print(tokens.access_token, tokens.refresh_token, tokens.expires_at)
+```
+
 ### Automatic token refresh
 
 ```python
@@ -94,6 +107,14 @@ client = Strava(
     expires_at=1700000000,
     on_token_refresh=save_tokens,
 )
+```
+
+### Deauthorize
+
+```python
+from strava import deauthorize
+
+deauthorize(access_token="your_token")
 ```
 
 ## API Coverage
@@ -133,14 +154,33 @@ for page in client.activities.list(per_page=50).pages():
 ## Error Handling
 
 ```python
-from strava import StravaError, NotFoundError, RateLimitError
+from strava import (
+    StravaError,
+    AuthenticationError,
+    AuthorizationError,
+    NotFoundError,
+    RateLimitError,
+    TokenExpiredError,
+    ValidationError,
+    ServerError,
+)
 
 try:
     activity = client.activities.retrieve(123)
+except TokenExpiredError:
+    print("Access token has expired — refresh it")
+except AuthenticationError:
+    print("Invalid or missing access token")
+except AuthorizationError:
+    print("Insufficient permissions")
 except NotFoundError:
     print("Activity not found")
+except ValidationError as e:
+    print(f"Bad request: {e.message}")
 except RateLimitError as e:
     print(f"Rate limited. 15-min usage: {e.usage_15min}/{e.limit_15min}")
+except ServerError:
+    print("Strava server error — try again later")
 except StravaError as e:
     print(f"API error {e.status_code}: {e.message}")
 ```
