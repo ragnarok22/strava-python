@@ -5,7 +5,7 @@ import pytest
 import respx
 
 from strava import Strava
-from strava.models._enums import ActivityType, SportType
+from strava.models._enums import SportType
 
 BASE = "https://www.strava.com/api/v3"
 

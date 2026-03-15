@@ -8,7 +8,7 @@ from strava.models._enums import ActivityType, SportType
 from strava.models.athletes import MetaAthlete, SummaryAthlete
 from strava.models.common import PhotosSummary, PolylineMap, Split, TimedZoneRange
 from strava.models.gear import SummaryGear
-from strava.models.segments import DetailedSegmentEffort, SummarySegment
+from strava.models.segments import DetailedSegmentEffort
 
 
 @dataclass(slots=True, kw_only=True)

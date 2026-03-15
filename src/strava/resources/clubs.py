@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from strava._paginator import AsyncPaginator, SyncPaginator
-from strava._serialization import strip_not_given
 from strava._types import NOT_GIVEN, NotGiven
 from strava.models.activities import ClubActivity
 from strava.models.athletes import ClubAthlete, SummaryAthlete

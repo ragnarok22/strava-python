@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
 
 from strava._paginator import AsyncPaginator, SyncPaginator
 from strava._serialization import strip_not_given, to_form_data
@@ -12,7 +11,6 @@ from strava.models.activities import (
     DetailedActivity,
     Lap,
     SummaryActivity,
-    UpdatableActivity,
 )
 from strava.models.athletes import SummaryAthlete
 from strava.resources._base import AsyncAPIResource, SyncAPIResource

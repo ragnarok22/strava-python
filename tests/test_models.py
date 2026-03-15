@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from strava.models._enums import ActivityType, SportType
 from strava.models.activities import (
@@ -21,14 +21,9 @@ from strava.models.athletes import (
 )
 from strava.models.clubs import DetailedClub, MetaClub, SummaryClub
 from strava.models.common import (
-    Error,
     Fault,
-    PhotosSummary,
     PolylineMap,
     Split,
-    TimedZoneRange,
-    Waypoint,
-    ZoneRange,
 )
 from strava.models.gear import DetailedGear, SummaryGear
 from strava.models.routes import Route
@@ -36,10 +31,8 @@ from strava.models.segments import (
     DetailedSegment,
     DetailedSegmentEffort,
     ExplorerResponse,
-    ExplorerSegment,
     SummaryPRSegmentEffort,
     SummarySegment,
-    SummarySegmentEffort,
 )
 from strava.models.stats import ActivityStats, ActivityTotal, Zones
 from strava.models.streams import StreamSet
