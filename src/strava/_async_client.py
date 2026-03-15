@@ -6,7 +6,7 @@ import httpx
 
 from strava._auth import OAuth2Auth
 from strava._base_client import BASE_URL, build_query_params
-from strava._exceptions import raise_for_status
+from strava._exceptions import RateLimitInfo, extract_rate_limits, raise_for_status
 from strava.models._base import StravaModel
 from strava.resources.activities import AsyncActivities
 from strava.resources.athletes import AsyncAthletes
@@ -65,6 +65,8 @@ class AsyncStrava:
                 timeout=timeout,
             )
 
+        self._rate_limits = RateLimitInfo()
+
         self.activities = AsyncActivities(self)
         self.athletes = AsyncAthletes(self)
         self.clubs = AsyncClubs(self)
@@ -74,6 +76,15 @@ class AsyncStrava:
         self.segment_efforts = AsyncSegmentEfforts(self)
         self.streams = AsyncStreams(self)
         self.uploads = AsyncUploads(self)
+
+    @property
+    def rate_limits(self) -> RateLimitInfo:
+        """Most recent rate limit state from the last API response."""
+        return self._rate_limits
+
+    def _handle_response(self, response: httpx.Response) -> None:
+        self._rate_limits = extract_rate_limits(response)
+        raise_for_status(response)
 
     async def _request_model(
         self,
@@ -94,7 +105,7 @@ class AsyncStrava:
             data=data,
             files=files,
         )
-        raise_for_status(response)
+        self._handle_response(response)
         return model_cls.from_dict(response.json())
 
     async def _request_model_list(
@@ -110,7 +121,7 @@ class AsyncStrava:
             path,
             params=build_query_params(params),
         )
-        raise_for_status(response)
+        self._handle_response(response)
         return [model_cls.from_dict(item) for item in response.json()]
 
     async def _request_json(
@@ -125,7 +136,7 @@ class AsyncStrava:
             path,
             params=build_query_params(params),
         )
-        raise_for_status(response)
+        self._handle_response(response)
         return response.json()
 
     async def _request_bytes(
@@ -134,7 +145,7 @@ class AsyncStrava:
         path: str,
     ) -> bytes:
         response = await self._http.request(method, path)
-        raise_for_status(response)
+        self._handle_response(response)
         return response.content
 
     async def close(self) -> None:
