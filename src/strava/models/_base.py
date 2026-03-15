@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
+import types
+import typing
 from datetime import datetime
 from enum import Enum
 from typing import Any, ClassVar, get_type_hints
@@ -14,16 +16,19 @@ def _is_dataclass_type(tp: type) -> bool:
 
 def _unwrap_optional(tp: Any) -> tuple[Any, bool]:
     """Unwrap Optional[X] / X | None to (X, True). Returns (tp, False) if not optional."""
-    origin = getattr(tp, "__origin__", None)
-    args = getattr(tp, "__args__", None)
-    if origin is type(int | str):  # types.UnionType (3.10+)
-        if args and type(None) in args:
+    # Handle types.UnionType (X | Y syntax, Python 3.10+)
+    # These don't have __origin__, so we must use isinstance
+    if isinstance(tp, types.UnionType):
+        args = tp.__args__
+        if type(None) in args:
             non_none = [a for a in args if a is not type(None)]
             if len(non_none) == 1:
                 return non_none[0], True
-    # typing.Union
-    import typing
+        return tp, False
 
+    # Handle typing.Union / typing.Optional
+    origin = getattr(tp, "__origin__", None)
+    args = getattr(tp, "__args__", None)
     if origin is typing.Union:
         if args and type(None) in args:
             non_none = [a for a in args if a is not type(None)]
