@@ -8,6 +8,7 @@ from strava import (
     AuthenticationError,
     NotFoundError,
     RateLimitError,
+    RateLimitInfo,
     ServerError,
     Strava,
     ValidationError,
@@ -54,6 +55,8 @@ class TestErrorHandling:
                 headers={
                     "X-RateLimit-Limit": "600,30000",
                     "X-RateLimit-Usage": "601,500",
+                    "X-ReadRateLimit-Limit": "100,1000",
+                    "X-ReadRateLimit-Usage": "101,200",
                 },
             )
         )
@@ -63,6 +66,11 @@ class TestErrorHandling:
         assert err.limit_15min == 600
         assert err.limit_daily == 30000
         assert err.usage_15min == 601
+        assert err.usage_daily == 500
+        assert err.read_limit_15min == 100
+        assert err.read_limit_daily == 1000
+        assert err.read_usage_15min == 101
+        assert err.read_usage_daily == 200
 
     @respx.mock
     def test_400_raises_validation_error(self, client: Strava):
@@ -97,6 +105,80 @@ class TestClientResources:
         assert client.segment_efforts is not None
         assert client.streams is not None
         assert client.uploads is not None
+
+
+class TestRateLimitTracking:
+    @respx.mock
+    def test_rate_limits_updated_on_success(self, client: Strava):
+        respx.get(f"{BASE}/athlete").mock(
+            return_value=httpx.Response(
+                200,
+                json={"id": 1, "firstname": "Test"},
+                headers={
+                    "X-RateLimit-Limit": "600,30000",
+                    "X-RateLimit-Usage": "42,100",
+                    "X-ReadRateLimit-Limit": "100,1000",
+                    "X-ReadRateLimit-Usage": "10,50",
+                },
+            )
+        )
+        client.athletes.retrieve_authenticated()
+        rl = client.rate_limits
+        assert rl.limit_15min == 600
+        assert rl.limit_daily == 30000
+        assert rl.usage_15min == 42
+        assert rl.usage_daily == 100
+        assert rl.read_limit_15min == 100
+        assert rl.read_limit_daily == 1000
+        assert rl.read_usage_15min == 10
+        assert rl.read_usage_daily == 50
+
+    @respx.mock
+    def test_rate_limits_updated_on_error(self, client: Strava):
+        respx.get(f"{BASE}/athlete").mock(
+            return_value=httpx.Response(
+                429,
+                json={"message": "Rate Limit Exceeded"},
+                headers={
+                    "X-RateLimit-Limit": "600,30000",
+                    "X-RateLimit-Usage": "601,500",
+                },
+            )
+        )
+        with pytest.raises(RateLimitError):
+            client.athletes.retrieve_authenticated()
+        rl = client.rate_limits
+        assert rl.usage_15min == 601
+
+    def test_rate_limits_default_empty(self, client: Strava):
+        rl = client.rate_limits
+        assert rl.limit_15min is None
+        assert rl.usage_15min is None
+        assert not rl.exceeded
+
+
+class TestRateLimitInfo:
+    def test_exceeded_when_over_overall_limit(self):
+        info = RateLimitInfo(limit_15min=600, usage_15min=600)
+        assert info.exceeded is True
+
+    def test_exceeded_when_over_daily_limit(self):
+        info = RateLimitInfo(limit_daily=30000, usage_daily=30001)
+        assert info.exceeded is True
+
+    def test_exceeded_when_over_read_limit(self):
+        info = RateLimitInfo(read_limit_15min=100, read_usage_15min=100)
+        assert info.exceeded is True
+
+    def test_not_exceeded_when_under(self):
+        info = RateLimitInfo(
+            limit_15min=600, usage_15min=42, limit_daily=30000, usage_daily=100
+        )
+        assert info.exceeded is False
+
+    def test_not_exceeded_when_empty(self):
+        info = RateLimitInfo()
+        assert info.exceeded is False
 
 
 class TestContextManager:
