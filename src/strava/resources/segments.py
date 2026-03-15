@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from strava._paginator import AsyncPaginator, SyncPaginator
 from strava._serialization import strip_not_given
-from strava._types import NOT_GIVEN, NotGiven
+from strava._types import NOT_GIVEN, NotGiven, resolve_per_page
 from strava.models.segments import (
     DetailedSegment,
     ExplorerResponse,
@@ -40,17 +40,15 @@ class Segments(SyncAPIResource):
     def list_starred(
         self,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummarySegment]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET", "/segments/starred", params=kw.get("params", {})
             ),
             model_cls=SummarySegment,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def star(self, segment_id: int, *, starred: bool) -> DetailedSegment:
@@ -91,17 +89,15 @@ class AsyncSegments(AsyncAPIResource):
     def list_starred(
         self,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummarySegment]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET", "/segments/starred", params=kw.get("params", {})
             ),
             model_cls=SummarySegment,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     async def star(self, segment_id: int, *, starred: bool) -> DetailedSegment:

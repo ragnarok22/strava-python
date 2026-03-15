@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from strava._paginator import AsyncPaginator, SyncPaginator
-from strava._types import NOT_GIVEN, NotGiven
+from strava._types import NOT_GIVEN, NotGiven, resolve_per_page
 from strava.models.activities import ClubActivity
 from strava.models.athletes import ClubAthlete, SummaryAthlete
 from strava.models.clubs import DetailedClub, SummaryClub
@@ -18,10 +18,8 @@ class Clubs(SyncAPIResource):
         self,
         club_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[ClubActivity]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -30,17 +28,15 @@ class Clubs(SyncAPIResource):
             ),
             model_cls=ClubActivity,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_admins(
         self,
         club_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryAthlete]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -49,17 +45,15 @@ class Clubs(SyncAPIResource):
             ),
             model_cls=SummaryAthlete,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_members(
         self,
         club_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[ClubAthlete]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -68,23 +62,21 @@ class Clubs(SyncAPIResource):
             ),
             model_cls=ClubAthlete,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_authenticated(
         self,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryClub]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET", "/athlete/clubs", params=kw.get("params", {})
             ),
             model_cls=SummaryClub,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
 
@@ -98,10 +90,8 @@ class AsyncClubs(AsyncAPIResource):
         self,
         club_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[ClubActivity]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -110,17 +100,15 @@ class AsyncClubs(AsyncAPIResource):
             ),
             model_cls=ClubActivity,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_admins(
         self,
         club_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryAthlete]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -129,17 +117,15 @@ class AsyncClubs(AsyncAPIResource):
             ),
             model_cls=SummaryAthlete,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_members(
         self,
         club_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[ClubAthlete]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -148,21 +134,19 @@ class AsyncClubs(AsyncAPIResource):
             ),
             model_cls=ClubAthlete,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_authenticated(
         self,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryClub]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET", "/athlete/clubs", params=kw.get("params", {})
             ),
             model_cls=SummaryClub,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
