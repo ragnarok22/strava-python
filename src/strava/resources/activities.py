@@ -103,9 +103,7 @@ class Activities(SyncAPIResource):
         page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryActivity]:
-        params = strip_not_given(
-            {"before": before, "after": after}
-        )
+        params = strip_not_given({"before": before, "after": after})
         p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(
@@ -125,9 +123,7 @@ class Activities(SyncAPIResource):
         page_size: int | NotGiven = NOT_GIVEN,
         after_cursor: str | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[Comment]:
-        params = strip_not_given(
-            {"page_size": page_size, "after_cursor": after_cursor}
-        )
+        params = strip_not_given({"page_size": page_size, "after_cursor": after_cursor})
         p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(
@@ -255,9 +251,7 @@ class AsyncActivities(AsyncAPIResource):
         page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryActivity]:
-        params = strip_not_given(
-            {"before": before, "after": after}
-        )
+        params = strip_not_given({"before": before, "after": after})
         p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(
@@ -277,9 +271,7 @@ class AsyncActivities(AsyncAPIResource):
         page_size: int | NotGiven = NOT_GIVEN,
         after_cursor: str | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[Comment]:
-        params = strip_not_given(
-            {"page_size": page_size, "after_cursor": after_cursor}
-        )
+        params = strip_not_given({"page_size": page_size, "after_cursor": after_cursor})
         p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(

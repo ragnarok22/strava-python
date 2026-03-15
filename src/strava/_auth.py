@@ -85,9 +85,7 @@ class OAuth2Auth(httpx.Auth):
         request.headers["Authorization"] = f"Bearer {self.access_token}"
         yield request
 
-    async def async_auth_flow(
-        self, request: httpx.Request
-    ) -> Any:
+    async def async_auth_flow(self, request: httpx.Request) -> Any:
         if self._is_expired() and self._can_refresh():
             refresh_response = yield self._build_refresh_request()
             self._handle_refresh_response(refresh_response)
