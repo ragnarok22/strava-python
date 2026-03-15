@@ -1,0 +1,3 @@
+interface:
+  display_name: "uv-version-bump"
+  short_description: "Bump uv package versions and create release tags"
