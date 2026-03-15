@@ -1,28 +1,22 @@
 # strava
 
-A Python library for the Strava API v3.
+[![CI](https://github.com/ragnarok22/strava-python/actions/workflows/ci.yml/badge.svg)](https://github.com/ragnarok22/strava-python/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ragnarok22/strava-python/graph/badge.svg)](https://codecov.io/gh/ragnarok22/strava-python)
+[![PyPI](https://img.shields.io/pypi/v/strava)](https://pypi.org/project/strava/)
+[![Python](https://img.shields.io/pypi/pyversions/strava)](https://pypi.org/project/strava/)
+[![License](https://img.shields.io/github/license/ragnarok22/strava-python)](https://github.com/ragnarok22/strava-python/blob/main/LICENSE)
 
-This project is intended to provide a clean, typed, and practical interface for working with Strava from Python applications and services.
+A modern, fully-typed Python SDK for the [Strava API v3](https://developers.strava.com/docs/reference/).
 
-## Status
+## Features
 
-The package is in early development.
-
-Current state:
-
-- Project scaffold is in place
-- `httpx` is installed as the HTTP client dependency
-- No public Strava API client has been implemented yet
-
-Until the first client release lands, treat the package as work in progress.
-
-## Goals
-
-- Cover the Strava API v3 with a Python-first interface
-- Provide typed request and response models where useful
-- Support both simple scripts and larger applications
-- Keep authentication flows straightforward
-- Build on top of `httpx` for modern HTTP support
+- Sync and async clients built on [httpx](https://www.python-httpx.org/)
+- Full type annotations and `py.typed` support
+- 32 API endpoints across 9 resource groups
+- 40+ dataclass models with automatic serialization
+- OAuth2 authentication with automatic token refresh
+- Lazy pagination iterators
+- Custom exception hierarchy with rate limit details
 
 ## Installation
 
@@ -30,72 +24,148 @@ Until the first client release lands, treat the package as work in progress.
 pip install strava
 ```
 
-For local development:
-
-```bash
-uv sync
-```
-
-## Python Version
-
-This project currently targets Python `>=3.14`.
-
-## Planned Features
-
-- OAuth token exchange and refresh helpers
-- Authenticated API client
-- Athlete, activities, clubs, routes, and segments endpoints
-- Pagination helpers
-- Sensible error types for API failures
-- Type hints throughout the public interface
-
-## Usage
-
-There is no stable public API yet.
-
-At the moment, the package only exposes a placeholder function:
+## Quick Start
 
 ```python
-from strava import hello
+from strava import Strava
 
-print(hello())
+with Strava(access_token="your_token") as client:
+    # Get authenticated athlete
+    athlete = client.athletes.retrieve_authenticated()
+    print(f"{athlete.firstname} {athlete.lastname}")
+
+    # List recent activities
+    for activity in client.activities.list(per_page=10):
+        print(f"{activity.name} - {activity.distance}m")
 ```
 
-Future usage will look more like a real client library, for example:
+### Async
 
 ```python
-# Planned API example only. Not implemented yet.
-from strava import StravaClient
+from strava import AsyncStrava
 
-client = StravaClient(access_token="...")
-athlete = client.get_authenticated_athlete()
-print(athlete.firstname)
+async with AsyncStrava(access_token="your_token") as client:
+    athlete = await client.athletes.retrieve_authenticated()
+    activities = await client.activities.list(per_page=10).collect()
+```
+
+## OAuth2 Authentication
+
+### Get an authorization URL
+
+```python
+from strava import build_authorization_url
+
+url = build_authorization_url(
+    client_id="your_client_id",
+    redirect_uri="http://localhost:8000/callback",
+    scopes=["read", "activity:read_all"],
+)
+# Redirect the user to `url`
+```
+
+### Exchange the code for tokens
+
+```python
+from strava import exchange_token
+
+tokens = exchange_token(
+    client_id="your_client_id",
+    client_secret="your_secret",
+    code="code_from_callback",
+)
+print(tokens.access_token, tokens.refresh_token, tokens.expires_at)
+```
+
+### Automatic token refresh
+
+```python
+from strava import Strava
+
+def save_tokens(access_token, refresh_token, expires_at):
+    # Persist the new tokens to your database
+    ...
+
+client = Strava(
+    access_token="...",
+    client_id="your_client_id",
+    client_secret="your_secret",
+    refresh_token="...",
+    expires_at=1700000000,
+    on_token_refresh=save_tokens,
+)
+```
+
+## API Coverage
+
+| Resource | Methods |
+|----------|---------|
+| **Activities** | `create`, `retrieve`, `update`, `list`, `list_comments`, `list_kudoers`, `list_laps`, `list_zones` |
+| **Athletes** | `retrieve_authenticated`, `update_authenticated`, `retrieve_zones`, `retrieve_stats` |
+| **Clubs** | `retrieve`, `list_activities`, `list_admins`, `list_members`, `list_authenticated` |
+| **Gear** | `retrieve` |
+| **Routes** | `retrieve`, `export_gpx`, `export_tcx`, `list_by_athlete` |
+| **Segments** | `retrieve`, `explore`, `list_starred`, `star` |
+| **Segment Efforts** | `retrieve`, `list` |
+| **Streams** | `get_activity_streams`, `get_route_streams`, `get_segment_effort_streams`, `get_segment_streams` |
+| **Uploads** | `create`, `retrieve` |
+
+## Pagination
+
+List endpoints return lazy paginators:
+
+```python
+# Iterate one item at a time (fetches pages on demand)
+for activity in client.activities.list():
+    print(activity.name)
+
+# Collect all results eagerly
+all_activities = client.activities.list().collect()
+
+# Limit results
+first_50 = client.activities.list().collect(max_items=50)
+
+# Iterate page by page
+for page in client.activities.list(per_page=50).pages():
+    print(f"Got {len(page)} activities")
+```
+
+## Error Handling
+
+```python
+from strava import StravaError, NotFoundError, RateLimitError
+
+try:
+    activity = client.activities.retrieve(123)
+except NotFoundError:
+    print("Activity not found")
+except RateLimitError as e:
+    print(f"Rate limited. 15-min usage: {e.usage_15min}/{e.limit_15min}")
+except StravaError as e:
+    print(f"API error {e.status_code}: {e.message}")
 ```
 
 ## Development
 
-Repository layout:
-
-```text
-src/
-  strava/
-```
-
-Typical workflow:
-
 ```bash
+# Install dependencies
 uv sync
-uv run python -c "from strava import hello; print(hello())"
+
+# Run tests
+make test
+
+# Run tests with coverage
+make coverage
+
+# Lint and format
+make lint
+make format
 ```
 
-## Roadmap
+## Python Version
 
-1. Add configuration and authentication primitives
-2. Implement a minimal HTTP client
-3. Ship athlete and activity endpoints first
-4. Add models, pagination, and better error handling
-5. Expand endpoint coverage across Strava API v3
+Supports Python 3.11 through 3.14.
 
 ## Contributing
 
-Contributions are welcome once the initial client shape is in place. For now, issues and early design feedback are the most useful.
+Contributions are welcome! Please open an issue or submit a pull request.
