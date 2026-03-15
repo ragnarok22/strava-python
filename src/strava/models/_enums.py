@@ -56,6 +56,17 @@ class SportType(StrEnum):
     YOGA = "Yoga"
 
 
+class WebhookObjectType(StrEnum):
+    ACTIVITY = "activity"
+    ATHLETE = "athlete"
+
+
+class WebhookAspectType(StrEnum):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+
+
 class ActivityType(StrEnum):
     ALPINE_SKI = "AlpineSki"
     BACKCOUNTRY_SKI = "BackcountrySki"

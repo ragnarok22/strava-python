@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from strava.models._enums import ActivityType, SportType
+from strava.models._enums import (
+    ActivityType,
+    SportType,
+    WebhookAspectType,
+    WebhookObjectType,
+)
 from strava.models.activities import (
     ActivityZone,
     ClubActivity,
@@ -62,6 +67,12 @@ from strava.models.streams import (
     TimeStream,
 )
 from strava.models.uploads import Upload
+from strava.models.webhooks import (
+    WebhookEvent,
+    WebhookSubscription,
+    WebhookValidationRequest,
+    WebhookValidationResponse,
+)
 
 __all__ = [
     "ActivityStats",
@@ -116,6 +127,12 @@ __all__ = [
     "UpdatableActivity",
     "Upload",
     "Waypoint",
+    "WebhookAspectType",
+    "WebhookEvent",
+    "WebhookObjectType",
+    "WebhookSubscription",
+    "WebhookValidationRequest",
+    "WebhookValidationResponse",
     "Zones",
     "ZoneRange",
 ]

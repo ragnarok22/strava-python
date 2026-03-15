@@ -37,6 +37,12 @@ from strava.models.segments import (
 from strava.models.stats import ActivityStats, ActivityTotal, Zones
 from strava.models.streams import StreamSet
 from strava.models.uploads import Upload
+from strava.models.webhooks import (
+    WebhookEvent,
+    WebhookSubscription,
+    WebhookValidationRequest,
+    WebhookValidationResponse,
+)
 
 
 class TestMetaModels:
@@ -522,6 +528,100 @@ class TestEnums:
         # API may add new types; we shouldn't crash
         a = SummaryActivity.from_dict({"sport_type": "FutureNewSport"})
         assert a.sport_type == "FutureNewSport"
+
+
+class TestWebhookModels:
+    def test_webhook_event_from_dict(self):
+        data = {
+            "object_type": "activity",
+            "object_id": 1234567890,
+            "aspect_type": "create",
+            "owner_id": 9876,
+            "subscription_id": 999,
+            "event_time": 1516126040,
+            "updates": {},
+        }
+        e = WebhookEvent.from_dict(data)
+        assert e.object_type == "activity"
+        assert e.object_id == 1234567890
+        assert e.aspect_type == "create"
+        assert e.owner_id == 9876
+        assert e.subscription_id == 999
+        assert e.event_time == 1516126040
+        assert e.updates == {}
+
+    def test_webhook_event_with_updates(self):
+        data = {
+            "object_type": "activity",
+            "object_id": 1234567890,
+            "aspect_type": "update",
+            "owner_id": 9876,
+            "subscription_id": 999,
+            "event_time": 1516126040,
+            "updates": {"title": "New Title", "type": "Run"},
+        }
+        e = WebhookEvent.from_dict(data)
+        assert e.updates == {"title": "New Title", "type": "Run"}
+
+    def test_webhook_event_deauthorization(self):
+        data = {
+            "object_type": "athlete",
+            "object_id": 9876,
+            "aspect_type": "update",
+            "owner_id": 9876,
+            "subscription_id": 999,
+            "event_time": 1516126040,
+            "updates": {"authorized": "false"},
+        }
+        e = WebhookEvent.from_dict(data)
+        assert e.object_type == "athlete"
+        assert e.aspect_type == "update"
+        assert e.updates["authorized"] == "false"
+
+    def test_webhook_event_round_trip(self):
+        data = {
+            "object_type": "activity",
+            "object_id": 123,
+            "aspect_type": "delete",
+            "owner_id": 456,
+            "subscription_id": 1,
+            "event_time": 1700000000,
+            "updates": {},
+        }
+        e = WebhookEvent.from_dict(data)
+        d = e.to_dict()
+        assert d["object_type"] == "activity"
+        assert d["aspect_type"] == "delete"
+        assert d["object_id"] == 123
+
+    def test_webhook_subscription(self):
+        data = {
+            "id": 1,
+            "callback_url": "https://example.com/webhook",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "application_id": 12345,
+        }
+        s = WebhookSubscription.from_dict(data)
+        assert s.id == 1
+        assert s.callback_url == "https://example.com/webhook"
+        assert s.application_id == 12345
+
+    def test_webhook_validation_request(self):
+        data = {
+            "hub.mode": "subscribe",
+            "hub.challenge": "15f7d1a91c1f40f8a748fd134752feb3",
+            "hub.verify_token": "STRAVA",
+        }
+        r = WebhookValidationRequest.from_dict(data)
+        assert r.mode == "subscribe"
+        assert r.challenge == "15f7d1a91c1f40f8a748fd134752feb3"
+        assert r.verify_token == "STRAVA"
+
+    def test_webhook_validation_response_to_dict(self):
+        r = WebhookValidationResponse(challenge="15f7d1a91c1f40f8a748fd134752feb3")
+        d = r.to_dict()
+        assert d == {"hub.challenge": "15f7d1a91c1f40f8a748fd134752feb3"}
 
 
 class TestRoundTrip:
