@@ -2,13 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from strava.models._base import StravaModel
-
-if TYPE_CHECKING:
-    from strava.models.clubs import SummaryClub
-    from strava.models.gear import SummaryGear
+from strava.models.clubs import SummaryClub
+from strava.models.gear import SummaryGear
 
 
 @dataclass(slots=True, kw_only=True)
