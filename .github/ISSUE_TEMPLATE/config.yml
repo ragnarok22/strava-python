@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Strava API Documentation
+    url: https://developers.strava.com/docs/reference/
+    about: Official Strava API v3 reference
+  - name: Questions & Discussions
+    url: https://github.com/ragnarok22/strava-python/discussions
+    about: Ask questions and discuss ideas

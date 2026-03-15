@@ -1,0 +1,90 @@
+name: Bug Report
+description: Report a bug in the Strava Python SDK
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out the sections below so we can reproduce and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: When I call client.activities.retrieve(...), I get...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal code example that reproduces the issue.
+      render: python
+      placeholder: |
+        from strava import Strava
+
+        client = Strava(access_token="...")
+        result = client.activities.retrieve(123)
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened. Include the full traceback if applicable.
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: python-version
+    attributes:
+      label: Python Version
+      options:
+        - "3.11"
+        - "3.12"
+        - "3.13"
+        - "3.14"
+    validations:
+      required: true
+
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK Version
+      description: Output of `pip show strava` or your pyproject.toml version.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client-type
+    attributes:
+      label: Client Type
+      description: Which client are you using?
+      options:
+        - Sync (Strava)
+        - Async (AsyncStrava)
+        - Both
+        - N/A
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, logs, or screenshots.
+    validations:
+      required: false
