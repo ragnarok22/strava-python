@@ -168,4 +168,6 @@ Supports Python 3.11 through 3.14.
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) before opening a pull request.
+
+Found a bug? [Open an issue](https://github.com/ragnarok22/strava-python/issues/new?template=bug_report.yml). Have an idea? [Request a feature](https://github.com/ragnarok22/strava-python/issues/new?template=feature_request.yml).
