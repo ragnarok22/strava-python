@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from strava._exceptions import raise_for_status
 from strava.models.streams import StreamSet
 from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
@@ -16,9 +15,8 @@ class Streams(SyncAPIResource):
         params: dict = {"key_by_type": str(key_by_type).lower()}
         if keys:
             params["keys"] = ",".join(keys)
-        response = self._client._http.get(path, params=params)
-        raise_for_status(response)
-        return StreamSet.from_stream_list(response.json())
+        raw = self._client._request_json("GET", path, params=params)
+        return StreamSet.from_stream_list(raw)
 
     def get_activity_streams(
         self,
@@ -74,9 +72,8 @@ class AsyncStreams(AsyncAPIResource):
         params: dict = {"key_by_type": str(key_by_type).lower()}
         if keys:
             params["keys"] = ",".join(keys)
-        response = await self._client._http.get(path, params=params)
-        raise_for_status(response)
-        return StreamSet.from_stream_list(response.json())
+        raw = await self._client._request_json("GET", path, params=params)
+        return StreamSet.from_stream_list(raw)
 
     async def get_activity_streams(
         self,

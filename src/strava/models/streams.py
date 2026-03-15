@@ -13,90 +13,57 @@ class BaseStream(StravaModel):
 
 
 @dataclass(slots=True, kw_only=True)
-class TimeStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class TimeStream(BaseStream):
     data: list[int] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class DistanceStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class DistanceStream(BaseStream):
     data: list[float] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class LatLngStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class LatLngStream(BaseStream):
     data: list[list[float]] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class AltitudeStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class AltitudeStream(BaseStream):
     data: list[float] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class SmoothVelocityStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class SmoothVelocityStream(BaseStream):
     data: list[float] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class HeartrateStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class HeartrateStream(BaseStream):
     data: list[int] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class CadenceStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class CadenceStream(BaseStream):
     data: list[int] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class PowerStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class PowerStream(BaseStream):
     data: list[int] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class TemperatureStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class TemperatureStream(BaseStream):
     data: list[int] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class MovingStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class MovingStream(BaseStream):
     data: list[bool] = field(default_factory=list)
 
 
 @dataclass(slots=True, kw_only=True)
-class SmoothGradeStream(StravaModel):
-    original_size: int | None = None
-    resolution: str | None = None
-    series_type: str | None = None
+class SmoothGradeStream(BaseStream):
     data: list[float] = field(default_factory=list)
 
 

@@ -115,20 +115,8 @@ def build_authorization_url(
     return f"{AUTHORIZE_URL}?{urlencode(params)}"
 
 
-def exchange_token(
-    client_id: str,
-    client_secret: str,
-    code: str,
-) -> TokenResponse:
-    response = httpx.post(
-        TOKEN_URL,
-        data={
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "code": code,
-            "grant_type": "authorization_code",
-        },
-    )
+def _post_token(data: dict[str, str]) -> TokenResponse:
+    response = httpx.post(TOKEN_URL, data=data)
     response.raise_for_status()
     body = response.json()
     return TokenResponse(
@@ -137,6 +125,21 @@ def exchange_token(
         expires_at=body["expires_at"],
         expires_in=body["expires_in"],
         token_type=body["token_type"],
+    )
+
+
+def exchange_token(
+    client_id: str,
+    client_secret: str,
+    code: str,
+) -> TokenResponse:
+    return _post_token(
+        {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+            "grant_type": "authorization_code",
+        }
     )
 
 
@@ -145,23 +148,13 @@ def refresh_access_token(
     client_secret: str,
     refresh_token: str,
 ) -> TokenResponse:
-    response = httpx.post(
-        TOKEN_URL,
-        data={
+    return _post_token(
+        {
             "client_id": client_id,
             "client_secret": client_secret,
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
-        },
-    )
-    response.raise_for_status()
-    body = response.json()
-    return TokenResponse(
-        access_token=body["access_token"],
-        refresh_token=body["refresh_token"],
-        expires_at=body["expires_at"],
-        expires_in=body["expires_in"],
-        token_type=body["token_type"],
+        }
     )
 
 

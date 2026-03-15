@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from strava._paginator import AsyncPaginator, SyncPaginator
 from strava._serialization import strip_not_given, to_form_data
-from strava._types import NOT_GIVEN, NotGiven
+from strava._types import NOT_GIVEN, NotGiven, resolve_per_page
 from strava.models._enums import ActivityType, SportType
 from strava.models.activities import (
     ActivityZone,
@@ -98,31 +98,27 @@ class Activities(SyncAPIResource):
         *,
         before: int | NotGiven = NOT_GIVEN,
         after: int | NotGiven = NOT_GIVEN,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryActivity]:
         params = strip_not_given({"before": before, "after": after})
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(
                 "GET", "/athlete/activities", params={**params, **kw.get("params", {})}
             ),
             model_cls=SummaryActivity,
             params=params,
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_comments(
         self,
         activity_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
         page_size: int | NotGiven = NOT_GIVEN,
         after_cursor: str | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[Comment]:
         params = strip_not_given({"page_size": page_size, "after_cursor": after_cursor})
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(
                 "GET",
@@ -131,17 +127,15 @@ class Activities(SyncAPIResource):
             ),
             model_cls=Comment,
             params=params,
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_kudoers(
         self,
         activity_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryAthlete]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -150,7 +144,7 @@ class Activities(SyncAPIResource):
             ),
             model_cls=SummaryAthlete,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_laps(self, activity_id: int) -> list[Lap]:
@@ -246,31 +240,27 @@ class AsyncActivities(AsyncAPIResource):
         *,
         before: int | NotGiven = NOT_GIVEN,
         after: int | NotGiven = NOT_GIVEN,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryActivity]:
         params = strip_not_given({"before": before, "after": after})
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(
                 "GET", "/athlete/activities", params={**params, **kw.get("params", {})}
             ),
             model_cls=SummaryActivity,
             params=params,
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_comments(
         self,
         activity_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
         page_size: int | NotGiven = NOT_GIVEN,
         after_cursor: str | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[Comment]:
         params = strip_not_given({"page_size": page_size, "after_cursor": after_cursor})
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda params=params, **kw: self._client._request_json(
                 "GET",
@@ -279,17 +269,15 @@ class AsyncActivities(AsyncAPIResource):
             ),
             model_cls=Comment,
             params=params,
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     def list_kudoers(
         self,
         activity_id: int,
         *,
-        page: int | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryAthlete]:
-        p = per_page if not isinstance(per_page, NotGiven) else 30
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -298,7 +286,7 @@ class AsyncActivities(AsyncAPIResource):
             ),
             model_cls=SummaryAthlete,
             params={},
-            per_page=p,
+            per_page=resolve_per_page(per_page),
         )
 
     async def list_laps(self, activity_id: int) -> list[Lap]:
