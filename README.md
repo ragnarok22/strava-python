@@ -1,7 +1,7 @@
 # strava
 
 [![CI](https://github.com/ragnarok22/strava-python/actions/workflows/ci.yml/badge.svg)](https://github.com/ragnarok22/strava-python/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/ragnarok22/strava-python/graph/badge.svg)](https://codecov.io/gh/ragnarok22/strava-python)
+[![codecov](https://codecov.io/gh/ragnarok22/strava-python/graph/badge.svg?token=1b94OIiVCD)](https://codecov.io/gh/ragnarok22/strava-python)
 [![PyPI](https://img.shields.io/pypi/v/strava)](https://pypi.org/project/strava/)
 [![Python](https://img.shields.io/pypi/pyversions/strava)](https://pypi.org/project/strava/)
 [![License](https://img.shields.io/github/license/ragnarok22/strava-python)](https://github.com/ragnarok22/strava-python/blob/main/LICENSE)
