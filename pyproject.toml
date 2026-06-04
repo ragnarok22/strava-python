@@ -6,10 +6,44 @@ readme = "README.md"
 authors = [
     { name = "Reinier Hernández", email = "sasuke.reinier@gmail.com" }
 ]
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
+keywords = [
+    "api",
+    "async",
+    "client",
+    "cycling",
+    "httpx",
+    "running",
+    "sdk",
+    "strava",
+    "typed",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 dependencies = [
     "httpx>=0.28.1",
 ]
+
+[project.urls]
+Changelog = "https://github.com/ragnarok22/strava-python/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/ragnarok22/strava-python#readme"
+Issues = "https://github.com/ragnarok22/strava-python/issues"
+Repository = "https://github.com/ragnarok22/strava-python"
 
 [dependency-groups]
 dev = [
