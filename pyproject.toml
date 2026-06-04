@@ -1,6 +1,6 @@
 [project]
 name = "strava"
-version = "0.1.0"
+version = "0.5.0"
 description = "Python library for the Strava API v3"
 readme = "README.md"
 authors = [
