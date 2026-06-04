@@ -20,6 +20,8 @@ class Clubs(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[ClubActivity]:
+        """Deprecated by Strava effective September 1, 2026."""
+
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -37,6 +39,8 @@ class Clubs(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryAthlete]:
+        """Deprecated by Strava effective September 1, 2026."""
+
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -54,6 +58,8 @@ class Clubs(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[ClubAthlete]:
+        """Deprecated by Strava effective September 1, 2026."""
+
         return SyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -92,6 +98,8 @@ class AsyncClubs(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[ClubActivity]:
+        """Deprecated by Strava effective September 1, 2026."""
+
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -109,6 +117,8 @@ class AsyncClubs(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryAthlete]:
+        """Deprecated by Strava effective September 1, 2026."""
+
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",
@@ -126,6 +136,8 @@ class AsyncClubs(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[ClubAthlete]:
+        """Deprecated by Strava effective September 1, 2026."""
+
         return AsyncPaginator(
             request_fn=lambda **kw: self._client._request_json(
                 "GET",

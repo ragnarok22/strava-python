@@ -7,7 +7,7 @@ import respx
 from strava import Strava
 from strava.models._enums import SportType
 
-BASE = "https://www.strava.com/api/v3"
+BASE = "https://www.api-v3.strava.com"
 
 
 @pytest.fixture

@@ -4,7 +4,7 @@ from typing import Any
 
 from strava._serialization import strip_not_given
 
-BASE_URL = "https://www.strava.com/api/v3"
+BASE_URL = "https://www.api-v3.strava.com"
 
 
 def build_query_params(params: dict[str, Any] | None) -> dict[str, Any]:

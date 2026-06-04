@@ -15,7 +15,7 @@ from strava import (
 )
 
 
-BASE = "https://www.strava.com/api/v3"
+BASE = "https://www.api-v3.strava.com"
 
 
 @pytest.fixture

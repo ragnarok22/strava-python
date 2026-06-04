@@ -109,13 +109,20 @@ client = Strava(
 )
 ```
 
-### Deauthorize
+### Revoke tokens
 
 ```python
-from strava import deauthorize
+from strava import revoke_token
 
-deauthorize(access_token="your_token")
+revoke_token(
+    client_id="your_client_id",
+    client_secret="your_secret",
+    token="access_or_refresh_token",
+    token_type_hint="access_token",
+)
 ```
+
+`deauthorize(access_token=...)` remains available for compatibility, but it is deprecated because Strava will retire `oauth/deauthorize` on June 1, 2027. Prefer `revoke_token()` for new code.
 
 ## API Coverage
 
@@ -130,6 +137,16 @@ deauthorize(access_token="your_token")
 | **Segment Efforts** | `retrieve`, `list` |
 | **Streams** | `get_activity_streams`, `get_route_streams`, `get_segment_effort_streams`, `get_segment_streams` |
 | **Uploads** | `create`, `retrieve` |
+
+## Strava API Changes
+
+The default API host is `https://www.api-v3.strava.com`, matching Strava's June 1, 2027 migration from `https://www.strava.com/api/v3`.
+
+Some methods remain in the SDK for compatibility but are affected by Strava's 2026 Developer Program changes:
+
+- `clubs.list_activities()`, `clubs.list_admins()`, and `clubs.list_members()` are deprecated by Strava effective September 1, 2026.
+- `segments.explore()` is restricted to approved Extended Access applications effective September 1, 2026.
+- `deauthorize()` is deprecated; use `revoke_token()` with your client credentials instead.
 
 ## Pagination
 

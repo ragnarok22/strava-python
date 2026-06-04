@@ -5,6 +5,7 @@ from strava._auth import (
     deauthorize,
     exchange_token,
     refresh_access_token,
+    revoke_token,
 )
 from strava._client import Strava
 from strava._exceptions import (
@@ -92,6 +93,7 @@ __all__ = [
     "build_authorization_url",
     "exchange_token",
     "refresh_access_token",
+    "revoke_token",
     "deauthorize",
     # Exceptions
     "StravaError",

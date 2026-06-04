@@ -25,6 +25,8 @@ class Segments(SyncAPIResource):
         min_cat: int | NotGiven = NOT_GIVEN,
         max_cat: int | NotGiven = NOT_GIVEN,
     ) -> ExplorerResponse:
+        """Restricted to approved Extended Access apps effective September 1, 2026."""
+
         params = strip_not_given(
             {
                 "bounds": ",".join(str(b) for b in bounds),
@@ -74,6 +76,8 @@ class AsyncSegments(AsyncAPIResource):
         min_cat: int | NotGiven = NOT_GIVEN,
         max_cat: int | NotGiven = NOT_GIVEN,
     ) -> ExplorerResponse:
+        """Restricted to approved Extended Access apps effective September 1, 2026."""
+
         params = strip_not_given(
             {
                 "bounds": ",".join(str(b) for b in bounds),

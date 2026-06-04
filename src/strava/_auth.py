@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import time
+import warnings
 from dataclasses import dataclass
-from typing import Any, Callable, Generator
+from typing import Any, Callable, Generator, Literal
 from urllib.parse import urlencode
 
 import httpx
@@ -10,6 +11,9 @@ import httpx
 TOKEN_URL = "https://www.strava.com/oauth/token"
 AUTHORIZE_URL = "https://www.strava.com/oauth/authorize"
 DEAUTHORIZE_URL = "https://www.strava.com/oauth/deauthorize"
+REVOKE_URL = "https://www.strava.com/oauth/revoke"
+
+TokenTypeHint = Literal["access_token", "refresh_token"]
 
 
 @dataclass(slots=True)
@@ -158,7 +162,51 @@ def refresh_access_token(
     )
 
 
-def deauthorize(access_token: str) -> None:
+def revoke_token(
+    client_id: str,
+    client_secret: str,
+    token: str,
+    *,
+    token_type_hint: TokenTypeHint | None = None,
+) -> None:
+    """Revoke an access or refresh token using Strava's oauth/revoke endpoint."""
+
+    data = {"token": token}
+    if token_type_hint is not None:
+        data["token_type_hint"] = token_type_hint
+
+    response = httpx.post(
+        REVOKE_URL,
+        data=data,
+        auth=httpx.BasicAuth(str(client_id), client_secret),
+    )
+    response.raise_for_status()
+
+
+def deauthorize(
+    access_token: str,
+    *,
+    client_id: str | None = None,
+    client_secret: str | None = None,
+) -> None:
+    """Deprecated compatibility helper for Strava's retiring deauthorize endpoint."""
+
+    warnings.warn(
+        "deauthorize() is deprecated; use revoke_token() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    if client_id is not None or client_secret is not None:
+        if client_id is None or client_secret is None:
+            raise ValueError("client_id and client_secret must be provided together")
+        revoke_token(
+            client_id,
+            client_secret,
+            access_token,
+            token_type_hint="access_token",
+        )
+        return
+
     response = httpx.post(
         DEAUTHORIZE_URL,
         data={"access_token": access_token},

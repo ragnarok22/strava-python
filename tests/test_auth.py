@@ -3,13 +3,18 @@ from __future__ import annotations
 import time
 
 import httpx
+import pytest
 import respx
 
 from strava._auth import (
     AUTHORIZE_URL,
+    DEAUTHORIZE_URL,
+    REVOKE_URL,
     TOKEN_URL,
     OAuth2Auth,
     build_authorization_url,
+    deauthorize,
+    revoke_token,
 )
 
 
@@ -119,3 +124,45 @@ class TestOAuth2Auth:
         assert auth.access_token == "new_token"
         assert auth.refresh_token == "new_refresh"
         assert refreshed["access_token"] == "new_token"
+
+
+class TestRevokeToken:
+    @respx.mock
+    def test_revoke_token_uses_basic_auth(self):
+        route = respx.post(REVOKE_URL).mock(return_value=httpx.Response(200))
+
+        revoke_token(
+            "12345",
+            "secret",
+            "token",
+            token_type_hint="access_token",
+        )
+
+        request = route.calls.last.request
+        assert request.headers["Authorization"] == "Basic MTIzNDU6c2VjcmV0"
+        assert request.content == b"token=token&token_type_hint=access_token"
+
+    @respx.mock
+    def test_deauthorize_with_credentials_uses_revoke(self):
+        route = respx.post(REVOKE_URL).mock(return_value=httpx.Response(200))
+
+        with pytest.warns(DeprecationWarning):
+            deauthorize("token", client_id="12345", client_secret="secret")
+
+        request = route.calls.last.request
+        assert request.headers["Authorization"] == "Basic MTIzNDU6c2VjcmV0"
+        assert request.content == b"token=token&token_type_hint=access_token"
+
+    def test_deauthorize_requires_both_credentials(self):
+        with pytest.warns(DeprecationWarning), pytest.raises(ValueError):
+            deauthorize("token", client_id="12345")
+
+    @respx.mock
+    def test_deauthorize_without_credentials_uses_legacy_endpoint(self):
+        route = respx.post(DEAUTHORIZE_URL).mock(return_value=httpx.Response(200))
+
+        with pytest.warns(DeprecationWarning):
+            deauthorize("token")
+
+        request = route.calls.last.request
+        assert request.content == b"access_token=token"
