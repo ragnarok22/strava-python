@@ -12,9 +12,9 @@ class Streams(SyncAPIResource):
         keys: list[str] | None = None,
         key_by_type: bool = True,
     ) -> StreamSet:
-        params: dict = {"key_by_type": str(key_by_type).lower()}
+        params: dict = {"key_by_type": key_by_type}
         if keys:
-            params["keys"] = ",".join(keys)
+            params["keys"] = keys
         raw = self._client._request_json("GET", path, params=params)
         return StreamSet.from_stream_list(raw)
 
@@ -69,9 +69,9 @@ class AsyncStreams(AsyncAPIResource):
         keys: list[str] | None = None,
         key_by_type: bool = True,
     ) -> StreamSet:
-        params: dict = {"key_by_type": str(key_by_type).lower()}
+        params: dict = {"key_by_type": key_by_type}
         if keys:
-            params["keys"] = ",".join(keys)
+            params["keys"] = keys
         raw = await self._client._request_json("GET", path, params=params)
         return StreamSet.from_stream_list(raw)
 

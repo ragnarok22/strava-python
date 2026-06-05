@@ -86,6 +86,27 @@ class Strava:
         self._rate_limits = extract_rate_limits(response)
         raise_for_status(response)
 
+    def _request(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
+        files: dict[str, Any] | None = None,
+    ) -> httpx.Response:
+        response = self._http.request(
+            method,
+            path,
+            params=build_query_params(params),
+            json=json,
+            data=data,
+            files=files,
+        )
+        self._handle_response(response)
+        return response
+
     def _request_model(
         self,
         method: str,
@@ -97,15 +118,14 @@ class Strava:
         files: dict[str, Any] | None = None,
         model_cls: type[T],
     ) -> T:
-        response = self._http.request(
+        response = self._request(
             method,
             path,
-            params=build_query_params(params),
+            params=params,
             json=json,
             data=data,
             files=files,
         )
-        self._handle_response(response)
         return model_cls.from_dict(response.json())
 
     def _request_model_list(
@@ -116,12 +136,7 @@ class Strava:
         params: dict[str, Any] | None = None,
         model_cls: type[T],
     ) -> list[T]:
-        response = self._http.request(
-            method,
-            path,
-            params=build_query_params(params),
-        )
-        self._handle_response(response)
+        response = self._request(method, path, params=params)
         return [model_cls.from_dict(item) for item in response.json()]
 
     def _request_json(
@@ -131,12 +146,7 @@ class Strava:
         *,
         params: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
-        response = self._http.request(
-            method,
-            path,
-            params=build_query_params(params),
-        )
-        self._handle_response(response)
+        response = self._request(method, path, params=params)
         return response.json()
 
     def _request_bytes(
@@ -144,8 +154,7 @@ class Strava:
         method: str,
         path: str,
     ) -> bytes:
-        response = self._http.request(method, path)
-        self._handle_response(response)
+        response = self._request(method, path)
         return response.content
 
     def close(self) -> None:

@@ -4,7 +4,7 @@ import httpx
 import pytest
 import respx
 
-from strava import Strava
+from strava import AsyncStrava, Strava
 from strava.models._enums import SportType
 
 BASE = "https://www.api-v3.strava.com"
@@ -73,6 +73,25 @@ class TestActivitiesResource:
             123, name="Updated Name", description="New desc"
         )
         assert activity.name == "Updated Name"
+
+    @respx.mock
+    def test_list_sends_pagination_and_filters(self, client: Strava):
+        route = respx.get(f"{BASE}/athlete/activities").mock(
+            return_value=httpx.Response(
+                200,
+                json=[{"id": 1, "name": "Morning Run"}],
+            )
+        )
+        activities = client.activities.list(before=10, after=5, per_page=2).collect(
+            max_items=1
+        )
+
+        assert len(activities) == 1
+        params = route.calls.last.request.url.params
+        assert params["before"] == "10"
+        assert params["after"] == "5"
+        assert params["page"] == "1"
+        assert params["per_page"] == "2"
 
     @respx.mock
     def test_list_laps(self, client: Strava):
@@ -234,7 +253,7 @@ class TestSegmentsResource:
 
     @respx.mock
     def test_explore(self, client: Strava):
-        respx.get(f"{BASE}/segments/explore").mock(
+        route = respx.get(f"{BASE}/segments/explore").mock(
             return_value=httpx.Response(
                 200,
                 json={
@@ -244,8 +263,39 @@ class TestSegmentsResource:
                 },
             )
         )
-        result = client.segments.explore(bounds=[37.0, -122.0, 38.0, -121.0])
+        result = client.segments.explore(
+            bounds=[37.0, -122.0, 38.0, -121.0],
+            activity_type="running",
+            min_cat=0,
+            max_cat=5,
+        )
+
         assert len(result.segments) == 1
+        params = route.calls.last.request.url.params
+        assert params["bounds"] == "37.0,-122.0,38.0,-121.0"
+        assert params["activity_type"] == "running"
+        assert params["min_cat"] == "0"
+        assert params["max_cat"] == "5"
+
+    @pytest.mark.asyncio
+    @respx.mock
+    async def test_async_list_starred_sends_pagination(self):
+        route = respx.get(f"{BASE}/segments/starred").mock(
+            return_value=httpx.Response(
+                200,
+                json=[{"id": 1, "name": "Test Segment", "distance": 1000.0}],
+            )
+        )
+
+        async with AsyncStrava(access_token="test_token") as client:
+            segments = await client.segments.list_starred(per_page=2).collect(
+                max_items=1
+            )
+
+        assert len(segments) == 1
+        params = route.calls.last.request.url.params
+        assert params["page"] == "1"
+        assert params["per_page"] == "2"
 
     @respx.mock
     def test_star(self, client: Strava):
@@ -286,7 +336,7 @@ class TestSegmentEffortsResource:
 class TestStreamsResource:
     @respx.mock
     def test_get_activity_streams(self, client: Strava):
-        respx.get(f"{BASE}/activities/1/streams").mock(
+        route = respx.get(f"{BASE}/activities/1/streams").mock(
             return_value=httpx.Response(
                 200,
                 json=[
@@ -307,10 +357,28 @@ class TestStreamsResource:
                 ],
             )
         )
-        streams = client.streams.get_activity_streams(1, keys=["time", "heartrate"])
+        streams = client.streams.get_activity_streams(
+            1, keys=["time", "heartrate"], key_by_type=False
+        )
+
         assert streams.time is not None
         assert streams.time.data == [0, 1, 2]
         assert streams.heartrate is not None
+        params = route.calls.last.request.url.params
+        assert params["keys"] == "time,heartrate"
+        assert params["key_by_type"] == "false"
+
+    @respx.mock
+    def test_get_route_streams_omits_keys(self, client: Strava):
+        route = respx.get(f"{BASE}/routes/1/streams").mock(
+            return_value=httpx.Response(200, json=[])
+        )
+        streams = client.streams.get_route_streams(1)
+
+        assert streams.time is None
+        params = route.calls.last.request.url.params
+        assert params["key_by_type"] == "true"
+        assert "keys" not in params
 
 
 class TestUploadsResource:

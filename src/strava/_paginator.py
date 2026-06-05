@@ -39,6 +39,12 @@ class SyncPaginator(Generic[T]):
             page_num += 1
 
     def collect(self, *, max_items: int | None = None) -> list[T]:
+        if max_items is not None:
+            if max_items < 0:
+                raise ValueError("max_items must be non-negative")
+            if max_items == 0:
+                return []
+
         result: list[T] = []
         for item in self:
             result.append(item)
@@ -82,6 +88,12 @@ class AsyncPaginator(Generic[T]):
             page_num += 1
 
     async def collect(self, *, max_items: int | None = None) -> list[T]:
+        if max_items is not None:
+            if max_items < 0:
+                raise ValueError("max_items must be non-negative")
+            if max_items == 0:
+                return []
+
         result: list[T] = []
         async for item in self:
             result.append(item)

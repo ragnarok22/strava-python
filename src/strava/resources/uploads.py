@@ -8,6 +8,35 @@ from strava.models.uploads import Upload
 from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
 
+def _upload_create_data(
+    *,
+    name: str | NotGiven = NOT_GIVEN,
+    description: str | NotGiven = NOT_GIVEN,
+    trainer: bool | NotGiven = NOT_GIVEN,
+    commute: bool | NotGiven = NOT_GIVEN,
+    data_type: str | NotGiven = NOT_GIVEN,
+    external_id: str | NotGiven = NOT_GIVEN,
+) -> dict[str, Any]:
+    return to_form_data(
+        {
+            "name": name,
+            "description": description,
+            "trainer": trainer,
+            "commute": commute,
+            "data_type": data_type,
+            "external_id": external_id,
+        }
+    )
+
+
+def _upload_files(file: IO[bytes] | bytes | None) -> dict[str, Any] | None:
+    if file is None:
+        return None
+    if isinstance(file, bytes):
+        return {"file": ("upload", file)}
+    return {"file": file}
+
+
 class Uploads(SyncAPIResource):
     def create(
         self,
@@ -20,22 +49,15 @@ class Uploads(SyncAPIResource):
         data_type: str | NotGiven = NOT_GIVEN,
         external_id: str | NotGiven = NOT_GIVEN,
     ) -> Upload:
-        data = to_form_data(
-            {
-                "name": name,
-                "description": description,
-                "trainer": trainer,
-                "commute": commute,
-                "data_type": data_type,
-                "external_id": external_id,
-            }
+        data = _upload_create_data(
+            name=name,
+            description=description,
+            trainer=trainer,
+            commute=commute,
+            data_type=data_type,
+            external_id=external_id,
         )
-        files: dict[str, Any] | None = None
-        if file is not None:
-            if isinstance(file, bytes):
-                files = {"file": ("upload", file)}
-            else:
-                files = {"file": file}
+        files = _upload_files(file)
         return self._client._request_model(
             "POST", "/uploads", data=data, files=files, model_cls=Upload
         )
@@ -58,22 +80,15 @@ class AsyncUploads(AsyncAPIResource):
         data_type: str | NotGiven = NOT_GIVEN,
         external_id: str | NotGiven = NOT_GIVEN,
     ) -> Upload:
-        data = to_form_data(
-            {
-                "name": name,
-                "description": description,
-                "trainer": trainer,
-                "commute": commute,
-                "data_type": data_type,
-                "external_id": external_id,
-            }
+        data = _upload_create_data(
+            name=name,
+            description=description,
+            trainer=trainer,
+            commute=commute,
+            data_type=data_type,
+            external_id=external_id,
         )
-        files: dict[str, Any] | None = None
-        if file is not None:
-            if isinstance(file, bytes):
-                files = {"file": ("upload", file)}
-            else:
-                files = {"file": file}
+        files = _upload_files(file)
         return await self._client._request_model(
             "POST", "/uploads", data=data, files=files, model_cls=Upload
         )

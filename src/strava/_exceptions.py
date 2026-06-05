@@ -7,14 +7,21 @@ if TYPE_CHECKING:
     import httpx
 
 
+def _parse_header_int(value: str) -> int | None:
+    try:
+        return int(value.strip())
+    except ValueError:
+        return None
+
+
 def _parse_header_pair(header: str) -> tuple[int | None, int | None]:
     """Parse a comma-separated pair of ints from a rate limit header."""
     if not header:
         return None, None
     parts = header.split(",")
-    if len(parts) >= 2:
-        return int(parts[0].strip()), int(parts[1].strip())
-    return None, None
+    first = _parse_header_int(parts[0]) if len(parts) >= 1 else None
+    second = _parse_header_int(parts[1]) if len(parts) >= 2 else None
+    return first, second
 
 
 @dataclass(slots=True)

@@ -73,6 +73,33 @@ class TestErrorHandling:
         assert err.read_usage_daily == 200
 
     @respx.mock
+    def test_429_with_malformed_rate_limit_headers_still_raises(self, client: Strava):
+        respx.get(f"{BASE}/athlete").mock(
+            return_value=httpx.Response(
+                429,
+                json={"message": "Rate Limit Exceeded"},
+                headers={
+                    "X-RateLimit-Limit": "600,not-an-int",
+                    "X-RateLimit-Usage": "bad,500",
+                    "X-ReadRateLimit-Limit": "100",
+                    "X-ReadRateLimit-Usage": "malformed",
+                },
+            )
+        )
+        with pytest.raises(RateLimitError) as exc_info:
+            client.athletes.retrieve_authenticated()
+
+        err = exc_info.value
+        assert err.limit_15min == 600
+        assert err.limit_daily is None
+        assert err.usage_15min is None
+        assert err.usage_daily == 500
+        assert err.read_limit_15min == 100
+        assert err.read_limit_daily is None
+        assert err.read_usage_15min is None
+        assert err.read_usage_daily is None
+
+    @respx.mock
     def test_400_raises_validation_error(self, client: Strava):
         respx.post(f"{BASE}/activities").mock(
             return_value=httpx.Response(400, json={"message": "Bad Request"})
@@ -132,6 +159,34 @@ class TestRateLimitTracking:
         assert rl.read_limit_daily == 1000
         assert rl.read_usage_15min == 10
         assert rl.read_usage_daily == 50
+
+    @respx.mock
+    def test_rate_limits_with_malformed_headers_keep_invalid_fields_empty(
+        self, client: Strava
+    ):
+        respx.get(f"{BASE}/athlete").mock(
+            return_value=httpx.Response(
+                200,
+                json={"id": 1, "firstname": "Test"},
+                headers={
+                    "X-RateLimit-Limit": "600,not-an-int",
+                    "X-RateLimit-Usage": "bad,500",
+                    "X-ReadRateLimit-Limit": "100",
+                    "X-ReadRateLimit-Usage": "malformed",
+                },
+            )
+        )
+        client.athletes.retrieve_authenticated()
+
+        rl = client.rate_limits
+        assert rl.limit_15min == 600
+        assert rl.limit_daily is None
+        assert rl.usage_15min is None
+        assert rl.usage_daily == 500
+        assert rl.read_limit_15min == 100
+        assert rl.read_limit_daily is None
+        assert rl.read_usage_15min is None
+        assert rl.read_usage_daily is None
 
     @respx.mock
     def test_rate_limits_updated_on_error(self, client: Strava):

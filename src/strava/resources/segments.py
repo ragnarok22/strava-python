@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from strava._paginator import AsyncPaginator, SyncPaginator
 from strava._serialization import strip_not_given
-from strava._types import NOT_GIVEN, NotGiven, resolve_per_page
+from strava._types import NOT_GIVEN, NotGiven
 from strava.models.segments import (
     DetailedSegment,
     ExplorerResponse,
@@ -29,7 +29,7 @@ class Segments(SyncAPIResource):
 
         params = strip_not_given(
             {
-                "bounds": ",".join(str(b) for b in bounds),
+                "bounds": bounds,
                 "activity_type": activity_type,
                 "min_cat": min_cat,
                 "max_cat": max_cat,
@@ -44,13 +44,10 @@ class Segments(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummarySegment]:
-        return SyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET", "/segments/starred", params=kw.get("params", {})
-            ),
+        return self._paginated_get(
+            "/segments/starred",
             model_cls=SummarySegment,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     def star(self, segment_id: int, *, starred: bool) -> DetailedSegment:
@@ -80,7 +77,7 @@ class AsyncSegments(AsyncAPIResource):
 
         params = strip_not_given(
             {
-                "bounds": ",".join(str(b) for b in bounds),
+                "bounds": bounds,
                 "activity_type": activity_type,
                 "min_cat": min_cat,
                 "max_cat": max_cat,
@@ -95,13 +92,10 @@ class AsyncSegments(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummarySegment]:
-        return AsyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET", "/segments/starred", params=kw.get("params", {})
-            ),
+        return self._paginated_get(
+            "/segments/starred",
             model_cls=SummarySegment,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     async def star(self, segment_id: int, *, starred: bool) -> DetailedSegment:

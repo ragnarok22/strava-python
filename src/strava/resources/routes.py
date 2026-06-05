@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from strava._paginator import AsyncPaginator, SyncPaginator
-from strava._types import NOT_GIVEN, NotGiven, resolve_per_page
+from strava._types import NOT_GIVEN, NotGiven
 from strava.models.routes import Route
 from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
@@ -24,15 +24,10 @@ class Routes(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[Route]:
-        return SyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/athletes/{athlete_id}/routes",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/athletes/{athlete_id}/routes",
             model_cls=Route,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
 
@@ -58,13 +53,8 @@ class AsyncRoutes(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[Route]:
-        return AsyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/athletes/{athlete_id}/routes",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/athletes/{athlete_id}/routes",
             model_cls=Route,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )

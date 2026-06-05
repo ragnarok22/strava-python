@@ -9,10 +9,13 @@ from strava._types import _NotGiven
 def parse_datetime(value: str | None) -> datetime | None:
     if value is None:
         return None
-    value = value.rstrip("Z")
-    if "+" not in value and value.count("-") <= 2:
-        value += "+00:00"
-    return datetime.fromisoformat(value).replace(tzinfo=timezone.utc)
+    if value.endswith("Z"):
+        value = f"{value[:-1]}+00:00"
+
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def strip_not_given(data: dict[str, Any]) -> dict[str, Any]:

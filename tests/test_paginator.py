@@ -60,6 +60,31 @@ class TestSyncPaginator:
         items = paginator.collect(max_items=50)
         assert len(items) == 50
 
+    def test_collect_with_zero_max_returns_empty_without_request(self):
+        def request_fn(params=None):
+            raise AssertionError("collect(max_items=0) should not request a page")
+
+        paginator = SyncPaginator(
+            request_fn=request_fn,
+            model_cls=SummaryActivity,
+            params={},
+            per_page=30,
+        )
+        assert paginator.collect(max_items=0) == []
+
+    def test_collect_with_negative_max_raises(self):
+        def request_fn(params=None):
+            raise AssertionError("collect(max_items=-1) should not request a page")
+
+        paginator = SyncPaginator(
+            request_fn=request_fn,
+            model_cls=SummaryActivity,
+            params={},
+            per_page=30,
+        )
+        with pytest.raises(ValueError):
+            paginator.collect(max_items=-1)
+
     def test_pages_iterator(self):
         def request_fn(params=None):
             page = params.get("page", 1) if params else 1
@@ -124,3 +149,30 @@ class TestAsyncPaginator:
         )
         items = await paginator.collect(max_items=50)
         assert len(items) == 50
+
+    @pytest.mark.asyncio
+    async def test_collect_with_zero_max_returns_empty_without_request(self):
+        async def request_fn(params=None):
+            raise AssertionError("collect(max_items=0) should not request a page")
+
+        paginator = AsyncPaginator(
+            request_fn=request_fn,
+            model_cls=SummaryActivity,
+            params={},
+            per_page=30,
+        )
+        assert await paginator.collect(max_items=0) == []
+
+    @pytest.mark.asyncio
+    async def test_collect_with_negative_max_raises(self):
+        async def request_fn(params=None):
+            raise AssertionError("collect(max_items=-1) should not request a page")
+
+        paginator = AsyncPaginator(
+            request_fn=request_fn,
+            model_cls=SummaryActivity,
+            params={},
+            per_page=30,
+        )
+        with pytest.raises(ValueError):
+            await paginator.collect(max_items=-1)

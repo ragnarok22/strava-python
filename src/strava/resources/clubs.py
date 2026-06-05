@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from strava._paginator import AsyncPaginator, SyncPaginator
-from strava._types import NOT_GIVEN, NotGiven, resolve_per_page
+from strava._types import NOT_GIVEN, NotGiven
 from strava.models.activities import ClubActivity
 from strava.models.athletes import ClubAthlete, SummaryAthlete
 from strava.models.clubs import DetailedClub, SummaryClub
@@ -22,15 +22,10 @@ class Clubs(SyncAPIResource):
     ) -> SyncPaginator[ClubActivity]:
         """Deprecated by Strava effective September 1, 2026."""
 
-        return SyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/clubs/{club_id}/activities",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/clubs/{club_id}/activities",
             model_cls=ClubActivity,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     def list_admins(
@@ -41,15 +36,10 @@ class Clubs(SyncAPIResource):
     ) -> SyncPaginator[SummaryAthlete]:
         """Deprecated by Strava effective September 1, 2026."""
 
-        return SyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/clubs/{club_id}/admins",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/clubs/{club_id}/admins",
             model_cls=SummaryAthlete,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     def list_members(
@@ -60,15 +50,10 @@ class Clubs(SyncAPIResource):
     ) -> SyncPaginator[ClubAthlete]:
         """Deprecated by Strava effective September 1, 2026."""
 
-        return SyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/clubs/{club_id}/members",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/clubs/{club_id}/members",
             model_cls=ClubAthlete,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     def list_authenticated(
@@ -76,13 +61,10 @@ class Clubs(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryClub]:
-        return SyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET", "/athlete/clubs", params=kw.get("params", {})
-            ),
+        return self._paginated_get(
+            "/athlete/clubs",
             model_cls=SummaryClub,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
 
@@ -100,15 +82,10 @@ class AsyncClubs(AsyncAPIResource):
     ) -> AsyncPaginator[ClubActivity]:
         """Deprecated by Strava effective September 1, 2026."""
 
-        return AsyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/clubs/{club_id}/activities",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/clubs/{club_id}/activities",
             model_cls=ClubActivity,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     def list_admins(
@@ -119,15 +96,10 @@ class AsyncClubs(AsyncAPIResource):
     ) -> AsyncPaginator[SummaryAthlete]:
         """Deprecated by Strava effective September 1, 2026."""
 
-        return AsyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/clubs/{club_id}/admins",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/clubs/{club_id}/admins",
             model_cls=SummaryAthlete,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     def list_members(
@@ -138,15 +110,10 @@ class AsyncClubs(AsyncAPIResource):
     ) -> AsyncPaginator[ClubAthlete]:
         """Deprecated by Strava effective September 1, 2026."""
 
-        return AsyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET",
-                f"/clubs/{club_id}/members",
-                params=kw.get("params", {}),
-            ),
+        return self._paginated_get(
+            f"/clubs/{club_id}/members",
             model_cls=ClubAthlete,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
 
     def list_authenticated(
@@ -154,11 +121,8 @@ class AsyncClubs(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryClub]:
-        return AsyncPaginator(
-            request_fn=lambda **kw: self._client._request_json(
-                "GET", "/athlete/clubs", params=kw.get("params", {})
-            ),
+        return self._paginated_get(
+            "/athlete/clubs",
             model_cls=SummaryClub,
-            params={},
-            per_page=resolve_per_page(per_page),
+            per_page=per_page,
         )
