@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.1] - 2026-06-05
+
+- Harden pagination, rate-limit, and datetime parsing edge cases.
+- Centralize client request handling and resource pagination helpers.
+- Add package licensing and metadata details.
+
 ## [0.5.0] - 2026-06-04
 
 ### Added
