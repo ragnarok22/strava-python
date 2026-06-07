@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/ragnarok22/strava-python/graph/badge.svg?token=1b94OIiVCD)](https://codecov.io/gh/ragnarok22/strava-python)
 [![PyPI](https://img.shields.io/pypi/v/strava)](https://pypi.org/project/strava/)
 [![Python](https://img.shields.io/pypi/pyversions/strava)](https://pypi.org/project/strava/)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/strava)
 [![License](https://img.shields.io/github/license/ragnarok22/strava-python)](https://github.com/ragnarok22/strava-python/blob/main/LICENSE)
 
 A modern, fully-typed Python SDK for the [Strava API v3](https://developers.strava.com/docs/reference/).
