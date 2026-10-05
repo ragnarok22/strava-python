@@ -9,6 +9,7 @@ from strava.resources.segment_efforts import AsyncSegmentEfforts, SegmentEfforts
 from strava.resources.segments import AsyncSegments, Segments
 from strava.resources.streams import AsyncStreams, Streams
 from strava.resources.uploads import AsyncUploads, Uploads
+from strava.resources.webhooks import AsyncWebhooks, Webhooks
 
 __all__ = [
     "Activities",
@@ -21,6 +22,7 @@ __all__ = [
     "AsyncSegments",
     "AsyncStreams",
     "AsyncUploads",
+    "AsyncWebhooks",
     "Athletes",
     "Clubs",
     "Gear",
@@ -29,4 +31,5 @@ __all__ = [
     "Segments",
     "Streams",
     "Uploads",
+    "Webhooks",
 ]

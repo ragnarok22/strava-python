@@ -131,6 +131,7 @@ class TestClientResources:
         assert client.segment_efforts is not None
         assert client.streams is not None
         assert client.uploads is not None
+        assert client.webhooks is not None
 
 
 class TestRateLimitTracking:

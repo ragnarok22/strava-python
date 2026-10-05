@@ -8,6 +8,7 @@ import httpx
 from strava._auth import OAuth2Auth
 from strava._base_client import BASE_URL, build_query_params
 from strava._exceptions import RateLimitInfo, extract_rate_limits, raise_for_status
+from strava._types import NOT_GIVEN, NotGiven
 from strava.models._base import StravaModel
 from strava.resources.activities import Activities
 from strava.resources.athletes import Athletes
@@ -18,6 +19,7 @@ from strava.resources.segment_efforts import SegmentEfforts
 from strava.resources.segments import Segments
 from strava.resources.streams import Streams
 from strava.resources.uploads import Uploads
+from strava.resources.webhooks import Webhooks
 
 T = TypeVar("T", bound=StravaModel)
 
@@ -34,6 +36,7 @@ class Strava:
     segment_efforts: SegmentEfforts
     streams: Streams
     uploads: Uploads
+    webhooks: Webhooks
 
     def __init__(
         self,
@@ -77,6 +80,7 @@ class Strava:
         self.segment_efforts = SegmentEfforts(self)
         self.streams = Streams(self)
         self.uploads = Uploads(self)
+        self.webhooks = Webhooks(self)
 
     @property
     def rate_limits(self) -> RateLimitInfo:
@@ -96,7 +100,11 @@ class Strava:
         json: dict[str, Any] | None = None,
         data: dict[str, Any] | None = None,
         files: dict[str, Any] | None = None,
+        auth: httpx.Auth | None | NotGiven = NOT_GIVEN,
     ) -> httpx.Response:
+        kwargs: dict[str, Any] = {}
+        if auth is not NOT_GIVEN:
+            kwargs["auth"] = auth
         response = self._http.request(
             method,
             path,
@@ -104,6 +112,7 @@ class Strava:
             json=json,
             data=data,
             files=files,
+            **kwargs,
         )
         self._handle_response(response)
         return response

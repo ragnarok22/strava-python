@@ -13,7 +13,7 @@ A modern, fully-typed Python SDK for the [Strava API v3](https://developers.stra
 
 - Sync and async clients built on [httpx](https://www.python-httpx.org/)
 - Full type annotations and `py.typed` support
-- 34 API endpoints across 9 resource groups
+- 37 API endpoints across 10 resource groups (including legacy club endpoints)
 - 50+ dataclass models with automatic serialization
 - OAuth2 authentication with automatic token refresh
 - Lazy pagination iterators
@@ -140,6 +140,39 @@ revoke_token(
 | **Segment Efforts** | `retrieve`, `list` |
 | **Streams** | `get_activity_streams`, `get_route_streams`, `get_segment_effort_streams`, `get_segment_streams` |
 | **Uploads** | `create`, `retrieve` |
+| **Webhooks** | `create`, `list`, `delete` |
+
+### Webhook subscriptions
+
+Manage subscriptions with your application's credentials. These requests bypass
+athlete-token authentication and automatic token refresh. Strava permits one
+subscription per application.
+
+```python
+with Strava(
+    access_token="your_token", base_url="https://www.strava.com/api/v3"
+) as client:
+    subscription = client.webhooks.create(
+        client_id="your_client_id",
+        client_secret="your_client_secret",
+        callback_url="https://your-app.example/webhooks/strava",
+        verify_token="your_verification_token",
+    )
+    subscriptions = client.webhooks.list(
+        client_id="your_client_id", client_secret="your_client_secret"
+    )
+    client.webhooks.delete(
+        subscription.id,
+        client_id="your_client_id",
+        client_secret="your_client_secret",
+    )
+```
+
+Your callback must answer Strava's verification request within two seconds with
+the JSON body `{"hub.challenge": "<received challenge>"}`. The same methods are
+available on `AsyncStrava` with `await`. See the
+[official webhook guide](https://developers.strava.com/docs/webhooks/) for callback
+and event handling.
 
 ## Strava API Changes
 

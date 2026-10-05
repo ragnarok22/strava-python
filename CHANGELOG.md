@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Add sync and async webhook subscription creation, listing, and deletion using application credentials.
+
 ## [0.5.1] - 2026-06-05
 
 - Harden pagination, rate-limit, and datetime parsing edge cases.
