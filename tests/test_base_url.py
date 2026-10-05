@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import inspect
-
 import httpx
 import pytest
 import respx
 
 from strava import AsyncStrava, Strava
+from tests._helpers import invoke
 
 
 @pytest.mark.asyncio
@@ -29,12 +28,9 @@ async def test_requests_use_documented_default_or_explicit_host(
     kwargs = {"base_url": base_url} if base_url is not None else {}
     client = client_cls(access_token="test_token", **kwargs)
     try:
-        result = client.athletes.retrieve_authenticated()
-        athlete = await result if inspect.isawaitable(result) else result
+        athlete = await invoke(client.athletes.retrieve_authenticated)
     finally:
-        result = client.close()
-        if inspect.isawaitable(result):
-            await result
+        await invoke(client.close)
 
     assert athlete.id == 123
     assert route.call_count == 1

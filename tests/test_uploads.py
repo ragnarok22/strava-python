@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 import json
 from email import policy
 from email.parser import BytesParser
@@ -9,22 +8,13 @@ from pathlib import Path
 
 import httpx
 import pytest
-import pytest_asyncio
 import respx
 
-from strava import AsyncStrava, SportType, Strava
+from strava import SportType
+from tests._helpers import invoke
 
 BASE = "https://www.strava.com/api/v3"
 EXAMPLE = Path(__file__).parents[1] / "examples" / "strength-training.json"
-
-
-@pytest_asyncio.fixture(params=[Strava, AsyncStrava], ids=["sync", "async"])
-async def client(request):
-    client = request.param(access_token="test_token", base_url=BASE)
-    yield client
-    result = client.close()
-    if inspect.isawaitable(result):
-        await result
 
 
 def multipart_fields(request: httpx.Request) -> dict[str, bytes]:
@@ -66,14 +56,14 @@ async def test_json_strength_training_upload_preserves_sets_and_streams(
     )
 
     with BytesIO(payload) as file:
-        result = client.uploads.create(
+        upload = await invoke(
+            client.uploads.create,
             file=file,
             data_type="json",
             sport_type=sport_type,
             name="Strength & conditioning",
             external_id="strength-session-42",
         )
-        upload = await result if inspect.isawaitable(result) else result
         assert not file.closed
 
     assert upload.id == 42
@@ -107,14 +97,14 @@ async def test_fit_upload_transmits_binary_data_and_sport_override(client):
         return_value=httpx.Response(201, json={"id": 43, "status": "Processing"})
     )
 
-    result = client.uploads.create(
+    upload = await invoke(
+        client.uploads.create,
         file=payload,
         data_type="fit",
         sport_type=SportType.CROSSFIT,
         trainer=True,
         commute=False,
     )
-    upload = await result if inspect.isawaitable(result) else result
 
     assert upload.id == 43
     assert multipart_fields(route.calls.last.request) == {
@@ -132,9 +122,7 @@ async def test_upload_omits_unspecified_sport_to_allow_file_detection(client):
     route = respx.post(f"{BASE}/uploads").mock(
         return_value=httpx.Response(201, json={"id": 44})
     )
-    result = client.uploads.create(file=b"file data", data_type="fit")
-    if inspect.isawaitable(result):
-        await result
+    await invoke(client.uploads.create, file=b"file data", data_type="fit")
 
     assert multipart_fields(route.calls.last.request) == {
         "file": b"file data",

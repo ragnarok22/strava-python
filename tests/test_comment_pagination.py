@@ -1,29 +1,13 @@
 from __future__ import annotations
 
-import inspect
-
 import httpx
 import pytest
-import pytest_asyncio
 import respx
 
-from strava import AsyncPaginator, AsyncStrava, Strava, SyncPaginator
+from strava import AsyncPaginator, SyncPaginator
+from tests._helpers import invoke
 
 BASE = "https://www.strava.com/api/v3"
-
-
-@pytest_asyncio.fixture(params=[Strava, AsyncStrava], ids=["sync", "async"])
-async def client(request):
-    client = request.param(access_token="test_token")
-    yield client
-    result = client.close()
-    if inspect.isawaitable(result):
-        await result
-
-
-async def collect(paginator, **kwargs):
-    result = paginator.collect(**kwargs)
-    return await result if inspect.isawaitable(result) else result
 
 
 @pytest.mark.asyncio
@@ -69,13 +53,13 @@ async def test_cursor_guards_only_run_when_continuation_is_needed(
     reset_responses()
     paginator = client.activities.list_comments(123, page_size=2, **options)
     count = sum(len(payload) for payload in payloads)
-    comments = await collect(paginator, max_items=count)
+    comments = await invoke(paginator.collect, max_items=count)
     assert len(comments) == count
     assert route.call_count == len(payloads)
 
     reset_responses()
     with pytest.raises(RuntimeError, match=message):
-        await collect(paginator)
+        await invoke(paginator.collect)
     # Reject continuation before requesting a repeated page or exhausting the mock.
     assert route.call_count == 2 * len(payloads)
 
@@ -88,11 +72,11 @@ async def test_empty_comments_and_size_precedence(client):
     )
     paginator = client.activities.list_comments(123, page_size=7, per_page=2)
     assert isinstance(paginator, (SyncPaginator, AsyncPaginator))
-    assert await collect(paginator, max_items=0) == []
+    assert await invoke(paginator.collect, max_items=0) == []
     with pytest.raises(ValueError, match="max_items must be non-negative"):
-        await collect(paginator, max_items=-1)
+        await invoke(paginator.collect, max_items=-1)
     assert route.call_count == 0
-    assert await collect(paginator) == []
+    assert await invoke(paginator.collect) == []
     assert route.call_count == 1
     assert dict(route.calls.last.request.url.params) == {"page_size": "7"}
 
@@ -125,5 +109,7 @@ async def test_comment_pages_are_lazy_and_restartable(client):
         {"page_size": "30", "after_cursor": "first"},
         {"page_size": "30", "after_cursor": "second"},
     ]
-    assert [comment.id for comment in await collect(paginator, max_items=1)] == [1]
+    assert [comment.id for comment in await invoke(paginator.collect, max_items=1)] == [
+        1
+    ]
     assert dict(route.calls.last.request.url.params) == {"page_size": "30"}

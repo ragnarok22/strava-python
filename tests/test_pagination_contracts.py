@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import inspect
-
 import httpx
 import pytest
-import pytest_asyncio
 import respx
 
-from strava import AsyncPaginator, AsyncStrava, Strava, SyncPaginator
+from strava import AsyncPaginator, SyncPaginator
 from strava.models.activities import SummaryActivity
+from tests._helpers import invoke
 
 BASE = "https://www.strava.com/api/v3"
 
@@ -42,8 +40,7 @@ async def test_short_intermediate_pages_do_not_terminate_pagination(
         params={"after": 123},
         per_page=2,
     )
-    result = paginator.collect(max_items=max_items)
-    activities = await result if inspect.isawaitable(result) else result
+    activities = await invoke(paginator.collect, max_items=max_items)
 
     expected_ids = [1, 2, 3, 4] if max_items is None else [1, 2, 3]
     assert [activity.id for activity in activities] == expected_ids
@@ -51,15 +48,6 @@ async def test_short_intermediate_pages_do_not_terminate_pagination(
     assert calls == [
         {"after": 123, "page": page, "per_page": 2} for page in expected_pages
     ]
-
-
-@pytest_asyncio.fixture(params=[Strava, AsyncStrava], ids=["sync", "async"])
-async def client(request):
-    client = request.param(access_token="test_token")
-    yield client
-    result = client.close()
-    if inspect.isawaitable(result):
-        await result
 
 
 @pytest.mark.asyncio
@@ -100,8 +88,7 @@ async def test_comments_advance_opaque_cursor_without_page_number_params(
 
     respx.get(f"{BASE}/activities/123/comments").mock(side_effect=response)
     paginator = client.activities.list_comments(123, **options)
-    result = paginator.collect(max_items=max_items)
-    comments = await result if inspect.isawaitable(result) else result
+    comments = await invoke(paginator.collect, max_items=max_items)
 
     assert [comment.id for comment in comments] == (
         [1, 2, 3] if max_items is None else [1, 2]

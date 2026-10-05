@@ -7,25 +7,22 @@ Source: https://developers.strava.com/docs/reference/
 
 from __future__ import annotations
 
-import inspect
 import json
 from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
 import pytest
-import pytest_asyncio
 import respx
 
 from strava import (
-    AsyncStrava,
     DetailedActivity,
     DetailedSegment,
-    Strava,
     SummaryActivity,
     SummarySegment,
     SummarySegmentEffort,
 )
+from tests._helpers import invoke
 
 BASE = "https://www.strava.com/api/v3"
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -215,15 +212,6 @@ def test_segment_pr_stats_dates_normalize_to_utc(model_cls, pr_date, expected):
     assert model_cls.from_dict(segment.to_dict()) == segment
 
 
-@pytest_asyncio.fixture(params=[Strava, AsyncStrava], ids=["sync", "async"])
-async def client(request):
-    client = request.param(access_token="test_token")
-    yield client
-    result = client.close()
-    if inspect.isawaitable(result):
-        await result
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("representation", ["summary", "detail"])
 @respx.mock
@@ -236,15 +224,13 @@ async def test_activity_endpoints_preserve_metrics(client, representation):
                 httpx.Response(200, json=[]),
             ]
         )
-        result = client.activities.list().collect()
-        activities = await result if inspect.isawaitable(result) else result
+        activities = await invoke(client.activities.list().collect)
         activity = activities[0]
     else:
         respx.get(f"{BASE}/activities/154504250376823").mock(
             return_value=httpx.Response(200, json=payload)
         )
-        result = client.activities.retrieve(154504250376823)
-        activity = await result if inspect.isawaitable(result) else result
+        activity = await invoke(client.activities.retrieve, 154504250376823)
 
     for name in ACTIVITY_FIELDS:
         assert getattr(activity, name) == payload[name]
@@ -262,15 +248,13 @@ async def test_segment_endpoints_preserve_flags_and_pr_stats(client, representat
                 httpx.Response(200, json=[]),
             ]
         )
-        result = client.segments.list_starred().collect()
-        segments = await result if inspect.isawaitable(result) else result
+        segments = await invoke(client.segments.list_starred().collect)
         segment = segments[0]
     else:
         respx.get(f"{BASE}/segments/229781").mock(
             return_value=httpx.Response(200, json=payload)
         )
-        result = client.segments.retrieve(229781)
-        segment = await result if inspect.isawaitable(result) else result
+        segment = await invoke(client.segments.retrieve, 229781)
 
     assert segment.starred is False
     assert segment.athlete_segment_stats.pr_elapsed_time == 553

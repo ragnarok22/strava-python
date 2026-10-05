@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import inspect
-
 import httpx
 import pytest
 import respx
@@ -18,6 +16,7 @@ from strava import (
     revoke_token,
 )
 from strava._auth import DEAUTHORIZE_URL, REVOKE_URL, TOKEN_URL, OAuth2Auth
+from tests._helpers import invoke
 
 ERRORS = [
     (400, ValidationError),
@@ -60,9 +59,7 @@ async def test_failed_refresh_preserves_error_and_never_requests_resource(
     client = client_cls(auth=auth, transport=httpx.MockTransport(handler))
     try:
         with pytest.raises(error_cls, match="Refresh rejected") as raised:
-            result = client.get("https://www.strava.com/api/v3/athlete")
-            if inspect.isawaitable(result):
-                await result
+            await invoke(client.get, "https://www.strava.com/api/v3/athlete")
     finally:
         if isinstance(client, httpx.AsyncClient):
             await client.aclose()

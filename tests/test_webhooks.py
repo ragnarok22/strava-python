@@ -1,37 +1,27 @@
 from __future__ import annotations
 
-import inspect
 from urllib.parse import parse_qs
 
 import httpx
 import pytest
-import pytest_asyncio
 import respx
 
-from strava import AsyncStrava, AuthenticationError, Strava, WebhookSubscription
+from strava import AuthenticationError, WebhookSubscription
+from tests._helpers import invoke
 
 BASE = "https://www.strava.com/api/v3"
 
 
-@pytest_asyncio.fixture(params=[Strava, AsyncStrava], ids=["sync", "async"])
-async def client(request):
-    client = request.param(
-        access_token="expired_athlete_token",
-        client_id="12345",
-        client_secret="test_secret",
-        refresh_token="test_refresh",
-        expires_at=0,
-        base_url=BASE,
-    )
-    yield client
-    result = client.close()
-    if inspect.isawaitable(result):
-        await result
-
-
-async def invoke(method, *args, **kwargs):
-    result = method(*args, **kwargs)
-    return await result if inspect.isawaitable(result) else result
+@pytest.fixture
+def client_options():
+    return {
+        "access_token": "expired_athlete_token",
+        "client_id": "12345",
+        "client_secret": "test_secret",
+        "refresh_token": "test_refresh",
+        "expires_at": 0,
+        "base_url": BASE,
+    }
 
 
 @pytest.mark.asyncio

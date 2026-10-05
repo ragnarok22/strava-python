@@ -29,6 +29,11 @@
 
 - **Breaking:** Remove `clubs.list_activities()`, `clubs.list_members()`, and `clubs.list_admins()` from both sync and async clients after Strava removed these endpoints on September 1, 2026. Accessing these methods now raises `AttributeError`; remove their calls and dependent application features. Strava provides no documented replacement endpoints. `clubs.retrieve()` and `clubs.list_authenticated()` remain supported, and `ClubActivity` / `ClubAthlete` models and public exports remain available for parsing existing data.
 
+### Changed
+
+- Consolidate sync/async endpoint test fixtures and invocation helpers while preserving special authentication scenarios and test coverage.
+- Make Ruff formatting and the existing 413-rule lint policy explicit, including Python 3.11 and Markdown code examples, so tool upgrades cannot silently change the selected checks.
+
 ## [0.5.1] - 2026-06-05
 
 - Harden pagination, rate-limit, and datetime parsing edge cases.

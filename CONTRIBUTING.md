@@ -58,6 +58,16 @@ without executing network calls; runtime pytest tests are outside the current
 mypy scope. Fix underlying types rather than adding suppressions or weakening
 strict checks.
 
+Ruff's Python target, formatting conventions, Markdown inclusion, and lint rule
+selection are explicit in `pyproject.toml`. The selected rules preserve the
+existing Ruff 0.16.5 policy; review rule changes deliberately when upgrading
+Ruff rather than relying on changing defaults.
+
+Sync/async endpoint tests can use the shared `client` fixture from
+`tests/conftest.py` and `invoke()` from `tests/_helpers.py`. Override
+`client_options` in a test module for special token scenarios. Module-local
+sync-only fixtures remain available where appropriate.
+
 Always run `make format`, `make lint`, `make typecheck`, and `make coverage` before submitting a PR. CI checks types on every supported Python version and before building a release.
 
 ## Project Structure

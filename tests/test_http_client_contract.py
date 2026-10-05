@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import inspect
-
 import httpx
 import pytest
 import respx
@@ -9,11 +7,7 @@ import respx
 from strava import AsyncStrava, Strava
 from strava._auth import TOKEN_URL
 from strava._types import NOT_GIVEN
-
-
-async def invoke(method, *args, **kwargs):
-    result = method(*args, **kwargs)
-    return await result if inspect.isawaitable(result) else result
+from tests._helpers import invoke
 
 
 async def close_http(client):

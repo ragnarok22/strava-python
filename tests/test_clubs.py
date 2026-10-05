@@ -1,24 +1,12 @@
 from __future__ import annotations
 
-import inspect
-
 import httpx
 import pytest
-import pytest_asyncio
 import respx
 
-from strava import AsyncStrava, Strava
+from tests._helpers import invoke
 
 BASE = "https://www.strava.com/api/v3"
-
-
-@pytest_asyncio.fixture(params=[Strava, AsyncStrava], ids=["sync", "async"])
-async def client(request):
-    client = request.param(access_token="test_token")
-    yield client
-    result = client.close()
-    if inspect.isawaitable(result):
-        await result
 
 
 @pytest.mark.asyncio
@@ -38,8 +26,7 @@ async def test_supported_club_retrieval_preserves_typed_response(client):
             200, json={"id": 123, "name": "Runners", "member_count": 20}
         )
     )
-    result = client.clubs.retrieve(123)
-    club = await result if inspect.isawaitable(result) else result
+    club = await invoke(client.clubs.retrieve, 123)
 
     assert club.id == 123
     assert club.name == "Runners"
@@ -57,8 +44,7 @@ async def test_supported_athlete_clubs_list_paginates_until_empty(client):
             httpx.Response(200, json=[]),
         ]
     )
-    result = client.clubs.list_authenticated(per_page=50).collect()
-    clubs = await result if inspect.isawaitable(result) else result
+    clubs = await invoke(client.clubs.list_authenticated(per_page=50).collect)
 
     assert [(club.id, club.name) for club in clubs] == [
         (1, "Club One"),

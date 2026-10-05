@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import inspect
-
 import httpx
 import pytest
-import pytest_asyncio
 import respx
 
-from strava import AsyncStrava, Strava
+from tests._helpers import invoke
 
 BASE = "https://www.strava.com/api/v3"
 ENDPOINTS = [
@@ -16,15 +13,6 @@ ENDPOINTS = [
     ("get_segment_effort_streams", "/segment_efforts/123/streams"),
     ("get_segment_streams", "/segments/123/streams"),
 ]
-
-
-@pytest_asyncio.fixture(params=[Strava, AsyncStrava], ids=["sync", "async"])
-async def client(request):
-    client = request.param(access_token="test_token")
-    yield client
-    result = client.close()
-    if inspect.isawaitable(result):
-        await result
 
 
 @pytest.mark.asyncio
@@ -51,8 +39,7 @@ async def test_stream_endpoints_normalize_responses_and_documented_query(
         return_value=httpx.Response(200, json=payload)
     )
     options = {} if method == "get_route_streams" else {"keys": ["time", "heartrate"]}
-    result = getattr(client.streams, method)(123, **options)
-    streams = await result if inspect.isawaitable(result) else result
+    streams = await invoke(getattr(client.streams, method), 123, **options)
 
     if shape.startswith("empty"):
         assert streams.time is None
@@ -76,8 +63,8 @@ async def test_stream_endpoints_normalize_responses_and_documented_query(
 @respx.mock
 async def test_key_by_type_false_is_rejected_before_request(client, method):
     with pytest.raises(ValueError, match="key_by_type.*true"):
-        result = getattr(client.streams, method)(123, keys=["time"], key_by_type=False)
-        if inspect.isawaitable(result):
-            await result
+        await invoke(
+            getattr(client.streams, method), 123, keys=["time"], key_by_type=False
+        )
 
     assert len(respx.calls) == 0
