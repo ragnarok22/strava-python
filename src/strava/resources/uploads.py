@@ -4,12 +4,14 @@ from typing import IO, Any
 
 from strava._serialization import to_form_data
 from strava._types import NOT_GIVEN, NotGiven
+from strava.models._enums import SportType
 from strava.models.uploads import Upload
 from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
 
 def _upload_create_data(
     *,
+    sport_type: SportType | str | NotGiven = NOT_GIVEN,
     name: str | NotGiven = NOT_GIVEN,
     description: str | NotGiven = NOT_GIVEN,
     trainer: bool | NotGiven = NOT_GIVEN,
@@ -19,6 +21,7 @@ def _upload_create_data(
 ) -> dict[str, Any]:
     return to_form_data(
         {
+            "sport_type": sport_type,
             "name": name,
             "description": description,
             "trainer": trainer,
@@ -42,6 +45,7 @@ class Uploads(SyncAPIResource):
         self,
         *,
         file: IO[bytes] | bytes | None = None,
+        sport_type: SportType | str | NotGiven = NOT_GIVEN,
         name: str | NotGiven = NOT_GIVEN,
         description: str | NotGiven = NOT_GIVEN,
         trainer: bool | NotGiven = NOT_GIVEN,
@@ -49,7 +53,14 @@ class Uploads(SyncAPIResource):
         data_type: str | NotGiven = NOT_GIVEN,
         external_id: str | NotGiven = NOT_GIVEN,
     ) -> Upload:
+        """Upload FIT, TCX, GPX, or strength-training JSON data for processing.
+
+        ``sport_type`` overrides the file's detected sport when supplied. JSON
+        uploads support WeightTraining, HighIntensityIntervalTraining, Workout,
+        and Crossfit only. Supply ``data_type="json"`` for JSON files.
+        """
         data = _upload_create_data(
+            sport_type=sport_type,
             name=name,
             description=description,
             trainer=trainer,
@@ -73,6 +84,7 @@ class AsyncUploads(AsyncAPIResource):
         self,
         *,
         file: IO[bytes] | bytes | None = None,
+        sport_type: SportType | str | NotGiven = NOT_GIVEN,
         name: str | NotGiven = NOT_GIVEN,
         description: str | NotGiven = NOT_GIVEN,
         trainer: bool | NotGiven = NOT_GIVEN,
@@ -80,7 +92,14 @@ class AsyncUploads(AsyncAPIResource):
         data_type: str | NotGiven = NOT_GIVEN,
         external_id: str | NotGiven = NOT_GIVEN,
     ) -> Upload:
+        """Upload FIT, TCX, GPX, or strength-training JSON data for processing.
+
+        ``sport_type`` overrides the file's detected sport when supplied. JSON
+        uploads support WeightTraining, HighIntensityIntervalTraining, Workout,
+        and Crossfit only. Supply ``data_type="json"`` for JSON files.
+        """
         data = _upload_create_data(
+            sport_type=sport_type,
             name=name,
             description=description,
             trainer=trainer,

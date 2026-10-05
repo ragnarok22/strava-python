@@ -422,7 +422,7 @@ class TestUploadsResource:
 
     @respx.mock
     def test_create(self, client: Strava):
-        respx.post(f"{BASE}/uploads").mock(
+        route = respx.post(f"{BASE}/uploads").mock(
             return_value=httpx.Response(
                 201,
                 json={"id": 1, "status": "Your activity is still being processed."},
@@ -434,3 +434,4 @@ class TestUploadsResource:
             name="Test Upload",
         )
         assert upload.id == 1
+        assert b'name="sport_type"' not in route.calls.last.request.content

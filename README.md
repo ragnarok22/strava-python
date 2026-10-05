@@ -186,6 +186,51 @@ available on `AsyncStrava` with `await`. See the
 [official webhook guide](https://developers.strava.com/docs/webhooks/) for callback
 and event handling.
 
+### Strength-training uploads
+
+`uploads.create()` accepts `sport_type` as a `SportType` member or a string to
+override the sport detected from a file. If omitted, Strava uses file metadata.
+
+Strava accepts JSON strength-training files for `WeightTraining`,
+`HighIntensityIntervalTraining`, `Workout`, and `Crossfit`. The sample
+[`examples/strength-training.json`](examples/strength-training.json) contains
+repetition-based and timed sets, weights in kilograms, and optional heart-rate
+and active-time streams.
+
+```python
+from strava import SportType, Strava
+
+with Strava(
+    access_token="your_token", base_url="https://www.strava.com/api/v3"
+) as client:
+    with open("examples/strength-training.json", "rb") as file:
+        upload = client.uploads.create(
+            file=file,
+            data_type="json",
+            sport_type=SportType.WEIGHT_TRAINING,
+            name="Strength session",
+        )
+    print(upload.id, upload.status)
+```
+
+Use `data_type="fit"` to upload a FIT strength-training file containing set
+messages. For example, replace the file above with `strength.fit` and the sport
+with `SportType.CROSSFIT`. The SDK transmits file bytes without modifying them.
+FIT files with sets do not need timestamped record messages, but must include
+the activity timestamp and session total elapsed time required by Strava.
+
+JSON files require version `"1.0"`, a timezone-aware `start_time`, `utc_offset`
+in seconds, `elapsed_time`, and at least one set. If streams are provided,
+`time` is required and all stream arrays must have equal lengths. These upload
+streams are part of the file format, separate from the read-only streams API.
+See the [uploads guide](https://developers.strava.com/docs/uploads/) for the
+complete specification and supported exercises.
+
+Uploads require `activity:write` and are processed asynchronously. Poll
+`uploads.retrieve(upload.id)` no more than once per second until `activity_id`
+is populated or `error` is set. Async applications can use
+`await client.uploads.create(...)` and `await client.uploads.retrieve(...)`.
+
 ## Strava API Changes
 
 The default API host is `https://www.api-v3.strava.com`, matching Strava's June 1, 2027 migration from `https://www.strava.com/api/v3`.

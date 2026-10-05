@@ -8,6 +8,7 @@
 - Expose granted OAuth scopes and typed athlete summaries on token responses, with optional metadata for refresh responses.
 - Add Basketball, Cricket, Dance, Padel, PhysicalTherapy, and Volleyball to `SportType`.
 - Preserve recording device names on `SummaryActivity` responses, including activity listings.
+- Add upload sport-type overrides and document JSON/FIT strength-training uploads with a structured JSON example.
 
 ## [0.5.1] - 2026-06-05
 

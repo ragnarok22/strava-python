@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "start_time": "2026-10-05T08:30:00Z",
+  "utc_offset": 0,
+  "elapsed_time": 3600,
+  "active_time": 2400,
+  "total_calories": 450,
+  "creator": {
+    "name": "My Strength Training App"
+  },
+  "streams": {
+    "time": [0, 60, 120, 180, 240],
+    "active": [true, true, true, false, true],
+    "heartrate": [72, 95, 110, 100, 118]
+  },
+  "sets": [
+    {
+      "exercise_type": "BARBELL_BENCH_PRESS",
+      "repetitions": 10,
+      "weight": 60.0,
+      "start_time": "2026-10-05T08:30:00Z"
+    },
+    {
+      "exercise_type": "BARBELL_BACK_SQUAT",
+      "repetitions": 8,
+      "weight": 80.0
+    },
+    {
+      "exercise_type": "PLANK_GENERIC",
+      "duration": 60
+    }
+  ]
+}
