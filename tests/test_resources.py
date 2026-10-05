@@ -384,18 +384,19 @@ class TestStreamsResource:
             )
         )
         streams = client.streams.get_activity_streams(
-            1, keys=["time", "heartrate"], key_by_type=False
+            1, keys=["time", "heartrate"], key_by_type=True
         )
 
         assert streams.time is not None
         assert streams.time.data == [0, 1, 2]
         assert streams.heartrate is not None
+        assert streams.heartrate.data == [120, 130, 140]
         params = route.calls.last.request.url.params
         assert params["keys"] == "time,heartrate"
-        assert params["key_by_type"] == "false"
+        assert params["key_by_type"] == "true"
 
     @respx.mock
-    def test_get_route_streams_omits_keys(self, client: Strava):
+    def test_get_route_streams_omits_query_params(self, client: Strava):
         route = respx.get(f"{BASE}/routes/1/streams").mock(
             return_value=httpx.Response(200, json=[])
         )
@@ -403,8 +404,7 @@ class TestStreamsResource:
 
         assert streams.time is None
         params = route.calls.last.request.url.params
-        assert params["key_by_type"] == "true"
-        assert "keys" not in params
+        assert dict(params) == {}
 
 
 class TestUploadsResource:

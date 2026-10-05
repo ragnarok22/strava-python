@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from strava.models._base import StravaModel
 
@@ -97,12 +98,19 @@ class StreamSet(StravaModel):
     grade_smooth: SmoothGradeStream | None = None
 
     @classmethod
-    def from_stream_list(cls, streams: list[dict]) -> StreamSet:
-        """Build StreamSet from the API's list-of-streams format.
+    def from_response(cls, streams: dict[str, Any] | list[dict[str, Any]]) -> StreamSet:
+        """Normalize keyed or legacy list responses into typed streams.
 
-        The API returns streams as a list of objects, each with a 'type' key,
-        rather than a dict keyed by type.
+        Keyed responses use the outer key as the stream type, so their values
+        do not need an inner ``type`` field. Unknown stream types are ignored.
         """
+        if isinstance(streams, dict):
+            return cls.from_dict(streams)
+        return cls.from_stream_list(streams)
+
+    @classmethod
+    def from_stream_list(cls, streams: list[dict]) -> StreamSet:
+        """Build StreamSet from legacy lists of objects with a ``type`` key."""
         kwargs: dict = {}
         for stream_data in streams:
             stream_type = stream_data.get("type")

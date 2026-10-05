@@ -154,6 +154,30 @@ revoke_token(
 | **Uploads** | `create`, `retrieve` |
 | **Webhooks** | `create`, `list`, `delete` |
 
+### Streams
+
+All four stream methods return a typed `StreamSet`, accepting both responses
+keyed by stream type and legacy lists of stream objects. Empty responses produce
+an empty `StreamSet`; unknown stream types are ignored. Keyed stream values do
+not need an inner `type` field.
+
+```python
+with Strava(access_token="your_token") as client:
+    streams = client.streams.get_activity_streams(123, keys=["time", "heartrate"])
+    if streams.heartrate is not None:
+        print(streams.heartrate.data)
+    route_streams = client.streams.get_route_streams(456)
+```
+
+Activity, segment-effort, and segment stream requests send `keys` as a
+comma-separated string and `key_by_type=true`. Route stream requests send no
+query parameters. The same methods are available on `AsyncStrava` with `await`.
+
+**Compatibility note:** `key_by_type=False` is no longer allowed and raises a
+`ValueError` before sending an HTTP request. Remove that argument or pass `True`;
+legacy list responses are still supported. `StreamSet.from_stream_list()` also
+remains available, and `StreamSet.from_response()` handles either response shape.
+
 ### Webhook subscriptions
 
 Manage subscriptions with your application's credentials. These requests bypass
