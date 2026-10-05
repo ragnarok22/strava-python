@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, AsyncIterator, Callable, Generic, Iterator, TypeVar
+from collections.abc import AsyncIterator, Callable, Iterator
+from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
 

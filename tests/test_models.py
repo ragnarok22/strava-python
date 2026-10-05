@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from strava.models._enums import ActivityType, SportType
 from strava.models.activities import (
@@ -157,15 +157,15 @@ class TestActivityModels:
 
     def test_datetime_with_z_stays_utc(self):
         a = SummaryActivity.from_dict({"start_date": "2024-06-15T07:00:00Z"})
-        assert a.start_date == datetime(2024, 6, 15, 7, 0, tzinfo=timezone.utc)
+        assert a.start_date == datetime(2024, 6, 15, 7, 0, tzinfo=UTC)
 
     def test_datetime_with_offset_converts_to_utc(self):
         a = SummaryActivity.from_dict({"start_date": "2024-06-15T07:00:00+02:00"})
-        assert a.start_date == datetime(2024, 6, 15, 5, 0, tzinfo=timezone.utc)
+        assert a.start_date == datetime(2024, 6, 15, 5, 0, tzinfo=UTC)
 
     def test_naive_datetime_is_treated_as_utc(self):
         a = SummaryActivity.from_dict({"start_date": "2024-06-15T07:00:00"})
-        assert a.start_date == datetime(2024, 6, 15, 7, 0, tzinfo=timezone.utc)
+        assert a.start_date == datetime(2024, 6, 15, 7, 0, tzinfo=UTC)
 
     def test_detailed_activity(self):
         data = {

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import time
 import warnings
+from collections.abc import Callable, Generator
 from dataclasses import dataclass
-from typing import Any, Callable, Generator, Literal
+from typing import Any, Literal
 from urllib.parse import urlencode
 
 import httpx

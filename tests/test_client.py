@@ -14,7 +14,6 @@ from strava import (
     ValidationError,
 )
 
-
 BASE = "https://www.api-v3.strava.com"
 
 

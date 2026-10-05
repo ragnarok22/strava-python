@@ -43,8 +43,8 @@ from strava.models import (
     ExplorerResponse,
     ExplorerSegment,
     Fault,
-    HeartRateZoneRanges,
     HeartrateStream,
+    HeartRateZoneRanges,
     Lap,
     LatLngStream,
     MetaActivity,
@@ -80,8 +80,8 @@ from strava.models import (
     WebhookSubscription,
     WebhookValidationRequest,
     WebhookValidationResponse,
-    Zones,
     ZoneRange,
+    Zones,
 )
 
 __all__ = [

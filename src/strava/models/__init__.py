@@ -122,8 +122,8 @@ __all__ = [
     "SummarySegment",
     "SummarySegmentEffort",
     "TemperatureStream",
-    "TimedZoneRange",
     "TimeStream",
+    "TimedZoneRange",
     "UpdatableActivity",
     "Upload",
     "Waypoint",
@@ -133,6 +133,6 @@ __all__ = [
     "WebhookSubscription",
     "WebhookValidationRequest",
     "WebhookValidationResponse",
-    "Zones",
     "ZoneRange",
+    "Zones",
 ]
