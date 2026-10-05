@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import TypeAlias
+from typing import Self, TypeAlias
 
 
 class _NotGiven:
     """Sentinel for distinguishing 'not provided' from None."""
 
-    _instance: _NotGiven | None = None
+    _instance: Self | None = None
 
-    def __new__(cls) -> _NotGiven:
+    def __new__(cls) -> Self:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance

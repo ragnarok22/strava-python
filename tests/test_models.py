@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 from strava.models._enums import ActivityType, SportType
 from strava.models.activities import (
@@ -119,7 +120,7 @@ class TestAthleteModels:
 
 
 class TestActivityModels:
-    SUMMARY_DATA = {
+    SUMMARY_DATA: ClassVar[dict[str, Any]] = {
         "id": 9876,
         "name": "Morning Run",
         "distance": 10000.5,

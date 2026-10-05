@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any, Self, TypeVar
 
 import httpx
 
@@ -161,7 +161,7 @@ class Strava:
     def close(self) -> None:
         self._http.close()
 
-    def __enter__(self) -> Strava:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *args: object) -> None:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any, Self, TypeVar
 
 import httpx
 
@@ -161,7 +161,7 @@ class AsyncStrava:
     async def close(self) -> None:
         await self._http.aclose()
 
-    async def __aenter__(self) -> AsyncStrava:
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: object) -> None:

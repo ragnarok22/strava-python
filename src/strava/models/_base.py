@@ -29,11 +29,10 @@ def _unwrap_optional(tp: Any) -> tuple[Any, bool]:
     # Handle typing.Union / typing.Optional
     origin = getattr(tp, "__origin__", None)
     args = getattr(tp, "__args__", None)
-    if origin is typing.Union:
-        if args and type(None) in args:
-            non_none = [a for a in args if a is not type(None)]
-            if len(non_none) == 1:
-                return non_none[0], True
+    if origin is typing.Union and args and type(None) in args:
+        non_none = [a for a in args if a is not type(None)]
+        if len(non_none) == 1:
+            return non_none[0], True
     return tp, False
 
 

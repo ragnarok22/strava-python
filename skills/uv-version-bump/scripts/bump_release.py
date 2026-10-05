@@ -6,7 +6,7 @@ import json
 import re
 import subprocess
 import sys
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 
 VALID_BUMPS = (
@@ -55,7 +55,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--release-date",
-        default=date.today().isoformat(),
+        default=datetime.now().astimezone().date().isoformat(),
         help="Release date used in the changelog heading.",
     )
     parser.add_argument(
@@ -194,7 +194,7 @@ def main() -> int:
 
 
 def run_command(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(args, cwd=cwd, text=True, capture_output=True)
+    result = subprocess.run(args, cwd=cwd, text=True, capture_output=True, check=False)
     if result.returncode != 0:
         message = "\n".join(
             part.strip() for part in (result.stderr, result.stdout) if part.strip()
@@ -223,6 +223,7 @@ def ensure_tag_absent(repo_root: Path, tag_name: str) -> None:
         cwd=repo_root,
         text=True,
         capture_output=True,
+        check=False,
     )
     if result.returncode == 0:
         raise CommandError(f"git tag {tag_name} already exists.")

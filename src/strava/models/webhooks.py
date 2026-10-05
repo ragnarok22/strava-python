@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import ClassVar
 
 from strava.models._base import StravaModel
 from strava.models._enums import WebhookAspectType, WebhookObjectType
@@ -32,7 +33,7 @@ class WebhookValidationRequest(StravaModel):
     challenge: str | None = None
     verify_token: str | None = None
 
-    _field_aliases = {
+    _field_aliases: ClassVar[dict[str, str]] = {
         "mode": "hub.mode",
         "challenge": "hub.challenge",
         "verify_token": "hub.verify_token",
@@ -43,6 +44,6 @@ class WebhookValidationRequest(StravaModel):
 class WebhookValidationResponse(StravaModel):
     challenge: str | None = None
 
-    _field_aliases = {
+    _field_aliases: ClassVar[dict[str, str]] = {
         "challenge": "hub.challenge",
     }

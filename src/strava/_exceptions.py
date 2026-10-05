@@ -164,7 +164,7 @@ def raise_for_status(response: httpx.Response) -> None:
         if isinstance(body, dict):
             fault = body
             message = body.get("message", message)
-    except Exception:
+    except ValueError:
         message = response.text or message
 
     kwargs: dict[str, Any] = {
