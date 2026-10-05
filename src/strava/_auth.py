@@ -61,7 +61,7 @@ class OAuth2Auth(httpx.Auth):
     def _can_refresh(self) -> bool:
         return bool(self.client_id and self.client_secret and self.refresh_token)
 
-    def _build_refresh_request(self) -> httpx.Request:
+    def _build_refresh_request(self, request: httpx.Request) -> httpx.Request:
         return httpx.Request(
             "POST",
             TOKEN_URL,
@@ -71,6 +71,11 @@ class OAuth2Auth(httpx.Auth):
                 "grant_type": "refresh_token",
                 "refresh_token": self.refresh_token,
             },
+            extensions=(
+                {"timeout": request.extensions["timeout"]}
+                if "timeout" in request.extensions
+                else {}
+            ),
         )
 
     def _handle_refresh_response(self, response: httpx.Response) -> None:
@@ -91,7 +96,7 @@ class OAuth2Auth(httpx.Auth):
         self, request: httpx.Request
     ) -> Generator[httpx.Request, httpx.Response, None]:
         if self._is_expired() and self._can_refresh():
-            refresh_response = yield self._build_refresh_request()
+            refresh_response = yield self._build_refresh_request(request)
             refresh_response.read()
             self._handle_refresh_response(refresh_response)
 
@@ -100,7 +105,7 @@ class OAuth2Auth(httpx.Auth):
 
     async def async_auth_flow(self, request: httpx.Request) -> Any:
         if self._is_expired() and self._can_refresh():
-            refresh_response = yield self._build_refresh_request()
+            refresh_response = yield self._build_refresh_request(request)
             await refresh_response.aread()
             self._handle_refresh_response(refresh_response)
 

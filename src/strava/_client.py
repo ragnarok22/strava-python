@@ -6,7 +6,7 @@ from typing import Any, Self, TypeVar
 import httpx
 
 from strava._auth import OAuth2Auth
-from strava._base_client import BASE_URL, build_query_params
+from strava._base_client import BASE_URL, build_query_params, build_resource_url
 from strava._exceptions import RateLimitInfo, extract_rate_limits, raise_for_status
 from strava._types import NOT_GIVEN, NotGiven
 from strava.models._base import StravaModel
@@ -51,7 +51,7 @@ class Strava:
         timeout: float = 30.0,
         http_client: httpx.Client | None = None,
     ) -> None:
-        auth = OAuth2Auth(
+        self._auth = OAuth2Auth(
             access_token,
             client_id=client_id,
             client_secret=client_secret,
@@ -59,13 +59,16 @@ class Strava:
             expires_at=expires_at,
             on_token_refresh=on_token_refresh,
         )
+        self._base_url = base_url
+        self._timeout = timeout
+        self._owns_http_client = http_client is None
 
         if http_client is not None:
             self._http = http_client
         else:
             self._http = httpx.Client(
                 base_url=base_url,
-                auth=auth,
+                auth=self._auth,
                 timeout=timeout,
             )
 
@@ -102,18 +105,19 @@ class Strava:
         files: dict[str, Any] | None = None,
         auth: httpx.Auth | None | NotGiven = NOT_GIVEN,
     ) -> httpx.Response:
-        kwargs: dict[str, Any] = {}
-        if auth is not NOT_GIVEN:
-            kwargs["auth"] = auth
-        response = self._http.request(
+        request_auth = self._auth if isinstance(auth, NotGiven) else auth
+        request = self._http.build_request(
             method,
-            path,
+            build_resource_url(self._base_url, path),
             params=build_query_params(params),
             json=json,
             data=data,
             files=files,
-            **kwargs,
+            timeout=self._timeout,
         )
+        if request_auth is None:
+            request.headers.pop("Authorization", None)
+        response = self._http.send(request, auth=request_auth)
         self._handle_response(response)
         return response
 
@@ -168,7 +172,8 @@ class Strava:
         return response.content
 
     def close(self) -> None:
-        self._http.close()
+        if self._owns_http_client:
+            self._http.close()
 
     def __enter__(self) -> Self:
         return self

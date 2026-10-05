@@ -13,6 +13,7 @@
 
 ### Fixed
 
+- Apply SDK authentication (including automatic refresh), API base URL, and timeout to every sync and async resource request when an HTTPX client is supplied, including SDK defaults. Preserve caller transport, hooks, pooling, and custom headers without mutating client settings; override default `Authorization` for API requests and remove it for unauthenticated webhooks. Preserve API path prefixes and propagate request timeouts to automatic OAuth refresh. **Compatibility change:** Configure API auth, base URL, and timeout on the SDK; supplied clients remain open after SDK close/context exit and must be closed by the caller.
 - Propagate automatic OAuth refresh failures through the SDK exception hierarchy before sending the original API request, changing tokens, or invoking the refresh callback. Preserve the OAuth response status, message, fault, response object, and rate-limit details, including streamed async error bodies.
 - Use the same SDK HTTP status mapping for token exchange, manual refresh, revocation, and deprecated deauthorization. **Compatibility change:** OAuth helpers now raise `StravaError` subclasses instead of `httpx.HTTPStatusError`; update exception handlers accordingly. Document that 401 maps to `AuthenticationError`, while `TokenExpiredError` remains exported for compatibility and is not automatically raised.
 - Read streamed OAuth refresh responses asynchronously in async clients before parsing tokens, preserving token rotation and closing response bodies correctly.

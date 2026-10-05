@@ -7,6 +7,11 @@ from strava._serialization import strip_not_given
 BASE_URL = "https://www.strava.com/api/v3"
 
 
+def build_resource_url(base_url: str, path: str) -> str:
+    """Append a resource path without discarding the API base URL's prefix."""
+    return f"{base_url.rstrip('/')}/{path.lstrip('/')}"
+
+
 def build_query_params(params: dict[str, Any] | None) -> dict[str, Any]:
     if params is None:
         return {}

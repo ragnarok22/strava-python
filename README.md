@@ -54,6 +54,45 @@ async with AsyncStrava(access_token="your_token") as client:
     activities = await client.activities.list(per_page=10).collect()
 ```
 
+### Supplying an HTTPX client
+
+Pass `http_client=httpx.Client(...)` to `Strava`, or an `httpx.AsyncClient` to
+`AsyncStrava`, to reuse a transport, connection pool, event hooks, and custom
+default headers. The SDK applies its own settings to each resource request:
+
+- `access_token` and the SDK's OAuth refresh credentials control authentication,
+  overriding the supplied client's auth handler and default `Authorization`
+  header. Webhook requests disable token authentication and remove
+  `Authorization` entirely.
+- `base_url` controls the API destination, including its path prefix. Its default
+  is `https://www.strava.com/api/v3`, even if the supplied client has another URL.
+- `timeout` controls requests and automatic OAuth refresh, defaulting to 30 seconds
+  even if the supplied client has another timeout. OAuth refresh uses Strava's
+  token endpoint independently of the API base URL.
+
+The SDK does not mutate the supplied client's `base_url`, `timeout`, `auth`, or
+default headers. Other custom default headers are retained on resource requests.
+You own the supplied client: SDK `close()` and context exit leave it open.
+SDK-created HTTP clients are closed by the SDK.
+
+```python
+import httpx
+from strava import Strava
+
+with httpx.Client(headers={"X-App": "my-app"}) as http:
+    with Strava(access_token="your_token", timeout=10.0, http_client=http) as client:
+        athlete = client.athletes.retrieve_authenticated()
+    # `http` remains open until its own context exits.
+```
+
+The same ownership rules apply to `AsyncStrava`; use `async with` for both clients
+or close the supplied client yourself with `await http.aclose()`.
+
+**Migration:** Previously, a supplied HTTPX client's auth, base URL, and timeout
+could take precedence, and closing the SDK closed that client. Move API URL and
+timeout overrides to the SDK constructor, provide token and refresh settings to
+the SDK, and explicitly manage the supplied HTTPX client's lifetime.
+
 ## OAuth2 Authentication
 
 ### Get an authorization URL
