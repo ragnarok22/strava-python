@@ -7,7 +7,7 @@ import respx
 from strava import AsyncStrava, Strava
 from strava._auth import TOKEN_URL
 from strava._types import NOT_GIVEN
-from tests._helpers import invoke
+from tests._helpers import assert_basic_auth, invoke
 
 
 async def close_http(client):
@@ -277,7 +277,7 @@ async def test_request_auth_overrides_preserve_client_headers_and_hooks(
         elif auth is NOT_GIVEN:
             assert request.headers["Authorization"] == "Bearer sdk_token"
         else:
-            assert request.headers["Authorization"] == "Basic b3ZlcnJpZGU6c2VjcmV0"
+            assert_basic_auth(request, "override", "secret")
         assert hooked == requests
         assert http.headers == original_headers
     finally:

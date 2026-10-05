@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-05
+
+### Breaking Changes
+
+- Removed `clubs.list_activities()`, `clubs.list_members()`, and `clubs.list_admins()` after Strava retired their endpoints. There are no documented replacements.
+- OAuth helpers now raise SDK `StravaError` subclasses instead of `httpx.HTTPStatusError`.
+- SDK authentication, API base URL, and timeout now take precedence when supplying an HTTPX client. Supplied clients remain caller-owned and must be closed by the caller.
+- Stream requests reject `key_by_type=False`; omit the argument or pass `True`. Legacy list responses remain supported.
+- Enum response annotations now include unknown-string fallbacks, and paginator type parameters require `StravaModel` subclasses.
+
 ### Added
 
 - Add strict Python 3.11 mypy checks for the SDK and static public API consumer contracts through `make typecheck`, CI, and release builds.
@@ -23,6 +33,7 @@
 - Continue sync and async page-number pagination until an empty response instead of truncating results at short intermediate pages.
 - Use opaque cursor pagination for activity comments, expose optional `Comment.cursor`, and guard missing or nonadvancing cursors only when another page is needed. Preserve `per_page` as a comment `page_size` alias, with `page_size` taking precedence.
 - Restore the default API base URL to the current official `https://www.strava.com/api/v3` for sync and async clients. Correct migration guidance: the future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027; switching requires an explicit `base_url` override and is not based on the clock.
+- Normalize parsed ISO timestamps to UTC, including timezone-naive values.
 - Preserve PR-style `athlete_segment_stats` (`pr_elapsed_time`, `pr_date`, `effort_count`, and optional `pr_activity_id`) alongside documented effort fields, including mixed responses. Keep the existing `SummarySegmentEffort` type and `SummaryPRSegmentEffort` semantics; normalize PR dates to UTC, including date-only values at midnight.
 
 ### Removed
@@ -33,6 +44,8 @@
 
 - Consolidate sync/async endpoint test fixtures and invocation helpers while preserving special authentication scenarios and test coverage.
 - Make Ruff formatting and the existing 413-rule lint policy explicit, including Python 3.11 and Markdown code examples, so tool upgrades cannot silently change the selected checks.
+- Update development dependencies and GitHub Actions used for testing, coverage, and publishing.
+- Verify authentication test credentials without storing encoded Authorization header literals that can trigger secret-scanner false positives.
 
 ## [0.5.1] - 2026-06-05
 
@@ -49,7 +62,7 @@
 ### Changed
 
 - Change the default API host to `https://www.api-v3.strava.com` for Strava's planned API migration.
-  - Correction: this historical release switched prematurely to an incorrect hostname. The future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027. The Unreleased fix restores the current official base URL.
+  - Correction: this historical release switched prematurely to an incorrect hostname. The future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027. Version 0.6.0 restores the current official base URL.
 - Document Strava's 2026 endpoint changes for club activities, club administrators, club members, and segment explore.
 
 ### Deprecated

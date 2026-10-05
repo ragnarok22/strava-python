@@ -20,6 +20,7 @@ from strava._auth import (
     revoke_token,
 )
 from strava.models.athletes import SummaryAthlete
+from tests._helpers import assert_basic_auth
 
 
 class TestBuildAuthorizationUrl:
@@ -211,7 +212,7 @@ class TestRevokeToken:
         )
 
         request = route.calls.last.request
-        assert request.headers["Authorization"] == "Basic MTIzNDU6c2VjcmV0"
+        assert_basic_auth(request, "12345", "secret")
         assert request.content == b"token=token&token_type_hint=access_token"
 
     @respx.mock
@@ -222,7 +223,7 @@ class TestRevokeToken:
             deauthorize("token", client_id="12345", client_secret="secret")
 
         request = route.calls.last.request
-        assert request.headers["Authorization"] == "Basic MTIzNDU6c2VjcmV0"
+        assert_basic_auth(request, "12345", "secret")
         assert request.content == b"token=token&token_type_hint=access_token"
 
     def test_deauthorize_requires_both_credentials(self):
