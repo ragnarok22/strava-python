@@ -10,6 +10,10 @@
 - Preserve recording device names on `SummaryActivity` responses, including activity listings.
 - Add upload sport-type overrides and document JSON/FIT strength-training uploads with a structured JSON example.
 
+### Fixed
+
+- Restore the default API base URL to the current official `https://www.strava.com/api/v3` for sync and async clients. Correct migration guidance: the future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027; switching requires an explicit `base_url` override and is not based on the clock.
+
 ## [0.5.1] - 2026-06-05
 
 - Harden pagination, rate-limit, and datetime parsing edge cases.
@@ -24,7 +28,8 @@
 
 ### Changed
 
-- Change the default API host to `https://www.api-v3.strava.com` for Strava's June 1, 2027 API migration.
+- Change the default API host to `https://www.api-v3.strava.com` for Strava's planned API migration.
+  - Correction: this historical release switched prematurely to an incorrect hostname. The future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027. The Unreleased fix restores the current official base URL.
 - Document Strava's 2026 endpoint changes for club activities, club administrators, club members, and segment explore.
 
 ### Deprecated

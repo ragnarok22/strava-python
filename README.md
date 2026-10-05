@@ -233,7 +233,12 @@ is populated or `error` is set. Async applications can use
 
 ## Strava API Changes
 
-The default API host is `https://www.api-v3.strava.com`, matching Strava's June 1, 2027 migration from `https://www.strava.com/api/v3`.
+The default API base URL is the current official `https://www.strava.com/api/v3`.
+Strava's future API host, `https://api-v3.strava.com` (without `www`), will be
+available starting January 4, 2027. The SDK keeps the current default and does
+not switch hosts automatically based on the clock. Once the future host is
+available, you can opt in explicitly with `base_url="https://api-v3.strava.com"`
+on either `Strava` or `AsyncStrava`.
 
 Some methods remain in the SDK for compatibility but are affected by Strava's 2026 Developer Program changes:
 
