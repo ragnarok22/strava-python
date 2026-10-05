@@ -13,6 +13,7 @@
 
 ### Fixed
 
+- Read streamed OAuth refresh responses asynchronously in async clients before parsing tokens, preserving token rotation and closing response bodies correctly.
 - Normalize keyed and legacy list responses into typed `StreamSet` results for all four sync and async stream endpoints, including empty responses and unknown stream types. Send CSV `keys` and `key_by_type=true` for activity, segment-effort, and segment streams, and omit query parameters for route streams. Compatibility note: `key_by_type=False` now raises `ValueError` before HTTP; remove it or pass `True`. `StreamSet.from_stream_list()` remains supported.
 - Continue sync and async page-number pagination until an empty response instead of truncating results at short intermediate pages.
 - Use opaque cursor pagination for activity comments, expose optional `Comment.cursor`, and guard missing or nonadvancing cursors only when another page is needed. Preserve `per_page` as a comment `page_size` alias, with `page_size` taking precedence.

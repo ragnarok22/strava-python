@@ -73,7 +73,6 @@ class OAuth2Auth(httpx.Auth):
         )
 
     def _handle_refresh_response(self, response: httpx.Response) -> None:
-        response.read()
         if response.status_code == 200:
             body = response.json()
             self.access_token = body["access_token"]
@@ -91,6 +90,7 @@ class OAuth2Auth(httpx.Auth):
     ) -> Generator[httpx.Request, httpx.Response, None]:
         if self._is_expired() and self._can_refresh():
             refresh_response = yield self._build_refresh_request()
+            refresh_response.read()
             self._handle_refresh_response(refresh_response)
 
         request.headers["Authorization"] = f"Bearer {self.access_token}"
@@ -99,6 +99,7 @@ class OAuth2Auth(httpx.Auth):
     async def async_auth_flow(self, request: httpx.Request) -> Any:
         if self._is_expired() and self._can_refresh():
             refresh_response = yield self._build_refresh_request()
+            await refresh_response.aread()
             self._handle_refresh_response(refresh_response)
 
         request.headers["Authorization"] = f"Bearer {self.access_token}"
