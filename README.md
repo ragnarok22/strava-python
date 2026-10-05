@@ -96,9 +96,11 @@ print(tokens.access_token, tokens.refresh_token, tokens.expires_at)
 ```python
 from strava import Strava
 
+
 def save_tokens(access_token, refresh_token, expires_at):
     # Persist the new tokens to your database
     ...
+
 
 client = Strava(
     access_token="...",
