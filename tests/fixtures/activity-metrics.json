@@ -1,0 +1,15 @@
+{
+  "id": 154504250376823,
+  "resource_state": 2,
+  "name": "Happy Friday",
+  "sport_type": "MountainBikeRide",
+  "device_name": "Garmin Edge 1030",
+  "has_heartrate": true,
+  "average_heartrate": 140.3,
+  "max_heartrate": 178,
+  "average_cadence": 67.1,
+  "average_temp": 4,
+  "pr_count": 0,
+  "suffer_score": 82,
+  "utc_offset": -25200
+}

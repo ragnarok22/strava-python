@@ -1,0 +1,13 @@
+{
+  "id": 229781,
+  "name": "Hawk Hill",
+  "athlete_segment_stats": {
+    "id": 987654,
+    "activity_id": 123456,
+    "elapsed_time": 553,
+    "start_date": "2026-10-05T08:30:00Z",
+    "start_date_local": "2026-10-05T08:30:00Z",
+    "distance": 2684.82,
+    "is_kom": false
+  }
+}

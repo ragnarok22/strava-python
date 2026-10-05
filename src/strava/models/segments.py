@@ -18,6 +18,8 @@ class SummaryPRSegmentEffort(StravaModel):
 
 @dataclass(slots=True, kw_only=True)
 class SummarySegmentEffort(StravaModel):
+    """Effort summary with optional PR stats returned in athlete_segment_stats."""
+
     id: int | None = None
     activity_id: int | None = None
     elapsed_time: int | None = None
@@ -25,11 +27,16 @@ class SummarySegmentEffort(StravaModel):
     start_date_local: datetime | None = None
     distance: float | None = None
     is_kom: bool | None = None
+    pr_activity_id: int | None = None
+    pr_elapsed_time: int | None = None
+    pr_date: datetime | None = None
+    effort_count: int | None = None
 
 
 @dataclass(slots=True, kw_only=True)
 class SummarySegment(StravaModel):
     id: int | None = None
+    resource_state: int | None = None
     name: str | None = None
     activity_type: str | None = None
     distance: float | None = None
@@ -44,6 +51,8 @@ class SummarySegment(StravaModel):
     state: str | None = None
     country: str | None = None
     private: bool | None = None
+    starred: bool | None = None
+    hazardous: bool | None = None
     athlete_pr_effort: SummaryPRSegmentEffort | None = None
     athlete_segment_stats: SummarySegmentEffort | None = None
 
@@ -51,6 +60,7 @@ class SummarySegment(StravaModel):
 @dataclass(slots=True, kw_only=True)
 class DetailedSegment(StravaModel):
     id: int | None = None
+    resource_state: int | None = None
     name: str | None = None
     activity_type: str | None = None
     distance: float | None = None
@@ -65,6 +75,7 @@ class DetailedSegment(StravaModel):
     state: str | None = None
     country: str | None = None
     private: bool | None = None
+    starred: bool | None = None
     athlete_pr_effort: SummaryPRSegmentEffort | None = None
     athlete_segment_stats: SummarySegmentEffort | None = None
     created_at: datetime | None = None

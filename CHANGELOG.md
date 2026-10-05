@@ -9,6 +9,7 @@
 - Add Basketball, Cricket, Dance, Padel, PhysicalTherapy, and Volleyball to `SportType`.
 - Preserve recording device names on `SummaryActivity` responses, including activity listings.
 - Add upload sport-type overrides and document JSON/FIT strength-training uploads with a structured JSON example.
+- Add optional activity resource state, heart-rate metrics, cadence, temperature, PR count, suffer score, and UTC offset to both summary and detailed models; expose resource state, starred, and hazardous flags on both segment models.
 
 ### Fixed
 
@@ -16,6 +17,7 @@
 - Continue sync and async page-number pagination until an empty response instead of truncating results at short intermediate pages.
 - Use opaque cursor pagination for activity comments, expose optional `Comment.cursor`, and guard missing or nonadvancing cursors only when another page is needed. Preserve `per_page` as a comment `page_size` alias, with `page_size` taking precedence.
 - Restore the default API base URL to the current official `https://www.strava.com/api/v3` for sync and async clients. Correct migration guidance: the future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027; switching requires an explicit `base_url` override and is not based on the clock.
+- Preserve PR-style `athlete_segment_stats` (`pr_elapsed_time`, `pr_date`, `effort_count`, and optional `pr_activity_id`) alongside documented effort fields, including mixed responses. Keep the existing `SummarySegmentEffort` type and `SummaryPRSegmentEffort` semantics; normalize PR dates to UTC, including date-only values at midnight.
 
 ### Removed
 

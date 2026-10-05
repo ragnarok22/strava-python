@@ -154,6 +154,30 @@ revoke_token(
 | **Uploads** | `create`, `retrieve` |
 | **Webhooks** | `create`, `list`, `delete` |
 
+### Activity and segment response fields
+
+Both `SummaryActivity` and `DetailedActivity` expose optional `resource_state`,
+`has_heartrate`, `average_heartrate`, `max_heartrate`, `average_cadence`,
+`average_temp`, `pr_count`, `suffer_score`, and `utc_offset` (seconds) fields.
+Both `SummarySegment` and `DetailedSegment` expose optional `resource_state`,
+`starred`, and `hazardous` fields. Omitted or null fields default to `None`;
+`to_dict()` omits `None` but preserves `False` and zero values.
+
+`athlete_segment_stats` remains a `SummarySegmentEffort` on both segment models.
+It preserves the documented effort fields (`id`, `activity_id`, `elapsed_time`,
+`start_date`, `start_date_local`, `distance`, and `is_kom`) and also accepts the
+PR fields returned by Strava's reference examples: `pr_elapsed_time`, `pr_date`,
+and `effort_count`, plus optional `pr_activity_id`. Responses can contain either
+shape or both together, without losing fields or changing
+`isinstance(stats, SummarySegmentEffort)` compatibility. `athlete_pr_effort`
+continues to use `SummaryPRSegmentEffort`.
+
+`pr_date` is parsed as a UTC-aware `datetime`, consistent with other model dates;
+a date-only value such as `"1993-04-03"` becomes midnight UTC. `to_dict()` emits
+an ISO timestamp with a UTC offset. These fields are based on the
+[official API reference](https://developers.strava.com/docs/reference/), whose
+segment stats sample and schema use different shapes; both are supported.
+
 ### Streams
 
 All four stream methods return a typed `StreamSet`, accepting both responses

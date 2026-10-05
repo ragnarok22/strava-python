@@ -19,6 +19,7 @@ class MetaActivity(StravaModel):
 @dataclass(slots=True, kw_only=True)
 class SummaryActivity(StravaModel):
     id: int | None = None
+    resource_state: int | None = None
     external_id: str | None = None
     upload_id: int | None = None
     athlete: MetaAthlete | None = None
@@ -34,6 +35,7 @@ class SummaryActivity(StravaModel):
     start_date: datetime | None = None
     start_date_local: datetime | None = None
     timezone: str | None = None
+    utc_offset: int | None = None
     start_latlng: list[float] | None = None
     end_latlng: list[float] | None = None
     achievement_count: int | None = None
@@ -61,11 +63,19 @@ class SummaryActivity(StravaModel):
     device_watts: bool | None = None
     max_watts: int | None = None
     weighted_average_watts: int | None = None
+    has_heartrate: bool | None = None
+    average_heartrate: float | None = None
+    max_heartrate: float | None = None
+    average_cadence: float | None = None
+    average_temp: int | None = None
+    pr_count: int | None = None
+    suffer_score: int | None = None
 
 
 @dataclass(slots=True, kw_only=True)
 class DetailedActivity(StravaModel):
     id: int | None = None
+    resource_state: int | None = None
     external_id: str | None = None
     upload_id: int | None = None
     athlete: MetaAthlete | None = None
@@ -81,6 +91,7 @@ class DetailedActivity(StravaModel):
     start_date: datetime | None = None
     start_date_local: datetime | None = None
     timezone: str | None = None
+    utc_offset: int | None = None
     start_latlng: list[float] | None = None
     end_latlng: list[float] | None = None
     achievement_count: int | None = None
@@ -107,6 +118,13 @@ class DetailedActivity(StravaModel):
     device_watts: bool | None = None
     max_watts: int | None = None
     weighted_average_watts: int | None = None
+    has_heartrate: bool | None = None
+    average_heartrate: float | None = None
+    max_heartrate: float | None = None
+    average_cadence: float | None = None
+    average_temp: int | None = None
+    pr_count: int | None = None
+    suffer_score: int | None = None
     description: str | None = None
     photos: PhotosSummary | None = None
     gear: SummaryGear | None = None
