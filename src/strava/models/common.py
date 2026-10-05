@@ -15,7 +15,7 @@ class PolylineMap(StravaModel):
 @dataclass(slots=True, kw_only=True)
 class PhotosSummary(StravaModel):
     count: int | None = None
-    primary: dict | None = None
+    primary: dict[str, object] | None = None
 
 
 @dataclass(slots=True, kw_only=True)

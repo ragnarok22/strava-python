@@ -1,11 +1,19 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from operator import getitem
+from typing import Any, ClassVar, Union
 
 import pytest
 
-from strava.models._enums import ActivityType, SportType
+from strava.models._base import StravaModel, _coerce_value
+from strava.models._enums import (
+    ActivityType,
+    SportType,
+    WebhookAspectType,
+    WebhookObjectType,
+)
 from strava.models.activities import (
     ActivityZone,
     ClubActivity,
@@ -524,7 +532,114 @@ class TestCommonModels:
         assert m.id is None
 
 
+@dataclass(slots=True, kw_only=True)
+class EnumUnionContainer(StravaModel):
+    sport: SportType | str | None = None
+    activity: ActivityType | str | None = None
+    object_type: WebhookObjectType | str | None = None
+    aspect: WebhookAspectType | str | None = None
+    events: list[WebhookEvent] | None = None
+    sports: list[list[SportType | str | None]] = field(default_factory=list)
+
+
 class TestEnums:
+    @pytest.mark.parametrize(
+        "member",
+        [
+            SportType.RUN,
+            ActivityType.RUN,
+            WebhookObjectType.ACTIVITY,
+            WebhookAspectType.CREATE,
+        ],
+    )
+    def test_legacy_typing_union_coercion(self, member):
+        # Construct typing.Union explicitly to exercise its distinct introspection
+        # path without using legacy syntax in production annotations.
+        enum_union = getitem(Union, (type(member), str, type(None)))
+        optional_list = getitem(Union, (list[enum_union], type(None)))
+        values = _coerce_value([member.value, "FutureValue", None], optional_list)
+        assert values[0] is member
+        assert type(values[1]) is str
+        assert values[1] == "FutureValue"
+        assert values[2] is None
+        assert _coerce_value(None, optional_list) is None
+
+    @pytest.mark.parametrize(
+        ("model_cls", "field_name", "member"),
+        [
+            (model_cls, field_name, member)
+            for model_cls in (
+                SummaryActivity,
+                DetailedActivity,
+                ClubActivity,
+                UpdatableActivity,
+            )
+            for field_name, member in (
+                ("sport_type", SportType.RUN),
+                ("type", ActivityType.RUN),
+            )
+        ]
+        + [
+            (WebhookEvent, "object_type", WebhookObjectType.ACTIVITY),
+            (WebhookEvent, "aspect_type", WebhookAspectType.CREATE),
+            (EnumUnionContainer, "sport", SportType.RUN),
+            (EnumUnionContainer, "activity", ActivityType.RUN),
+            (EnumUnionContainer, "object_type", WebhookObjectType.ACTIVITY),
+            (EnumUnionContainer, "aspect", WebhookAspectType.CREATE),
+        ],
+    )
+    @pytest.mark.parametrize("value_kind", ["known", "unknown", "null"])
+    def test_optional_enum_string_union(
+        self, model_cls, field_name, member, value_kind
+    ):
+        value = {"known": member.value, "unknown": "FutureValue", "null": None}[
+            value_kind
+        ]
+        model = model_cls.from_dict({field_name: value})
+        parsed = getattr(model, field_name)
+        if value_kind == "known":
+            assert parsed is member
+        elif value_kind == "unknown":
+            assert type(parsed) is str
+            assert parsed == value
+        else:
+            assert parsed is None
+        if value is None:
+            assert field_name not in model.to_dict()
+        else:
+            assert model.to_dict()[field_name] == value
+
+    def test_enum_union_preserves_nested_lists_and_models(self):
+        data = {
+            "events": [
+                {"object_type": "activity", "aspect_type": "create"},
+                {"object_type": "FutureObject", "aspect_type": "FutureAspect"},
+            ],
+            "sports": [["Run", "FutureSport", None], []],
+        }
+        model = EnumUnionContainer.from_dict(data)
+        assert isinstance(model.events[0], WebhookEvent)
+        assert model.events[0].object_type is WebhookObjectType.ACTIVITY
+        assert model.events[0].aspect_type is WebhookAspectType.CREATE
+        assert model.events[1].object_type == "FutureObject"
+        assert model.events[1].aspect_type == "FutureAspect"
+        assert model.sports[0][0] is SportType.RUN
+        assert model.sports[0][1:] == ["FutureSport", None]
+        assert model.sports[1] == []
+        assert model.to_dict() == {
+            **data,
+            "events": [{**event, "updates": {}} for event in data["events"]],
+        }
+
+    @pytest.mark.parametrize("model_cls", [SummaryClub, DetailedClub])
+    def test_club_activity_types_allow_unknown_strings(self, model_cls):
+        data = {"activity_types": ["Run", "FutureActivity"]}
+        model = model_cls.from_dict(data)
+        assert model.activity_types[0] is ActivityType.RUN
+        assert type(model.activity_types[1]) is str
+        assert model.activity_types[1] == "FutureActivity"
+        assert model.to_dict()["activity_types"] == data["activity_types"]
+
     @pytest.mark.parametrize("model_cls", [SummaryActivity, DetailedActivity])
     @pytest.mark.parametrize(
         ("value", "member"),

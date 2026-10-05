@@ -30,8 +30,8 @@ class SummaryActivity(StravaModel):
     total_elevation_gain: float | None = None
     elev_high: float | None = None
     elev_low: float | None = None
-    type: ActivityType | None = None
-    sport_type: SportType | None = None
+    type: ActivityType | str | None = None
+    sport_type: SportType | str | None = None
     start_date: datetime | None = None
     start_date_local: datetime | None = None
     timezone: str | None = None
@@ -86,8 +86,8 @@ class DetailedActivity(StravaModel):
     total_elevation_gain: float | None = None
     elev_high: float | None = None
     elev_low: float | None = None
-    type: ActivityType | None = None
-    sport_type: SportType | None = None
+    type: ActivityType | str | None = None
+    sport_type: SportType | str | None = None
     start_date: datetime | None = None
     start_date_local: datetime | None = None
     timezone: str | None = None
@@ -145,8 +145,8 @@ class UpdatableActivity(StravaModel):
     hide_from_home: bool | None = None
     description: str | None = None
     name: str | None = None
-    type: ActivityType | None = None
-    sport_type: SportType | None = None
+    type: ActivityType | str | None = None
+    sport_type: SportType | str | None = None
     gear_id: str | None = None
 
 
@@ -201,6 +201,6 @@ class ClubActivity(StravaModel):
     moving_time: int | None = None
     elapsed_time: int | None = None
     total_elevation_gain: float | None = None
-    type: ActivityType | None = None
-    sport_type: SportType | None = None
+    type: ActivityType | str | None = None
+    sport_type: SportType | str | None = None
     workout_type: int | None = None

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Self
 
 from strava.models._base import StravaModel
 
@@ -68,7 +68,7 @@ class SmoothGradeStream(BaseStream):
     data: list[float] = field(default_factory=list)
 
 
-_STREAM_TYPE_MAP: dict[str, type] = {
+_STREAM_TYPE_MAP: dict[str, type[BaseStream]] = {
     "time": TimeStream,
     "distance": DistanceStream,
     "latlng": LatLngStream,
@@ -98,7 +98,7 @@ class StreamSet(StravaModel):
     grade_smooth: SmoothGradeStream | None = None
 
     @classmethod
-    def from_response(cls, streams: dict[str, Any] | list[dict[str, Any]]) -> StreamSet:
+    def from_response(cls, streams: dict[str, Any] | list[dict[str, Any]]) -> Self:
         """Normalize keyed or legacy list responses into typed streams.
 
         Keyed responses use the outer key as the stream type, so their values
@@ -109,12 +109,12 @@ class StreamSet(StravaModel):
         return cls.from_stream_list(streams)
 
     @classmethod
-    def from_stream_list(cls, streams: list[dict]) -> StreamSet:
+    def from_stream_list(cls, streams: list[dict[str, Any]]) -> Self:
         """Build StreamSet from legacy lists of objects with a ``type`` key."""
-        kwargs: dict = {}
+        kwargs: dict[str, BaseStream] = {}
         for stream_data in streams:
             stream_type = stream_data.get("type")
             if stream_type and stream_type in _STREAM_TYPE_MAP:
                 stream_cls = _STREAM_TYPE_MAP[stream_type]
                 kwargs[stream_type] = stream_cls.from_dict(stream_data)
-        return cls(**kwargs)
+        return cls.from_dict(kwargs)

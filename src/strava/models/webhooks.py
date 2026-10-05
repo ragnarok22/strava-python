@@ -9,9 +9,9 @@ from strava.models._enums import WebhookAspectType, WebhookObjectType
 
 @dataclass(slots=True, kw_only=True)
 class WebhookEvent(StravaModel):
-    object_type: WebhookObjectType | None = None
+    object_type: WebhookObjectType | str | None = None
     object_id: int | None = None
-    aspect_type: WebhookAspectType | None = None
+    aspect_type: WebhookAspectType | str | None = None
     owner_id: int | None = None
     subscription_id: int | None = None
     event_time: int | None = None

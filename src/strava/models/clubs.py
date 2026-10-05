@@ -22,7 +22,7 @@ class SummaryClub(StravaModel):
     cover_photo: str | None = None
     cover_photo_small: str | None = None
     sport_type: str | None = None
-    activity_types: list[ActivityType] = field(default_factory=list)
+    activity_types: list[ActivityType | str] = field(default_factory=list)
     city: str | None = None
     state: str | None = None
     country: str | None = None
@@ -42,7 +42,7 @@ class DetailedClub(StravaModel):
     cover_photo: str | None = None
     cover_photo_small: str | None = None
     sport_type: str | None = None
-    activity_types: list[ActivityType] = field(default_factory=list)
+    activity_types: list[ActivityType | str] = field(default_factory=list)
     city: str | None = None
     state: str | None = None
     country: str | None = None

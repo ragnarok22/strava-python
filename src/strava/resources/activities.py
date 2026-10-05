@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 from typing import Any
 
 from strava._paginator import (
@@ -193,12 +194,12 @@ class Activities(SyncAPIResource):
             per_page=per_page,
         )
 
-    def list_laps(self, activity_id: int) -> list[Lap]:
+    def list_laps(self, activity_id: int) -> builtins.list[Lap]:
         return self._client._request_model_list(
             "GET", f"/activities/{activity_id}/laps", model_cls=Lap
         )
 
-    def list_zones(self, activity_id: int) -> list[ActivityZone]:
+    def list_zones(self, activity_id: int) -> builtins.list[ActivityZone]:
         return self._client._request_model_list(
             "GET", f"/activities/{activity_id}/zones", model_cls=ActivityZone
         )
@@ -323,12 +324,12 @@ class AsyncActivities(AsyncAPIResource):
             per_page=per_page,
         )
 
-    async def list_laps(self, activity_id: int) -> list[Lap]:
+    async def list_laps(self, activity_id: int) -> builtins.list[Lap]:
         return await self._client._request_model_list(
             "GET", f"/activities/{activity_id}/laps", model_cls=Lap
         )
 
-    async def list_zones(self, activity_id: int) -> list[ActivityZone]:
+    async def list_zones(self, activity_id: int) -> builtins.list[ActivityZone]:
         return await self._client._request_model_list(
             "GET", f"/activities/{activity_id}/zones", model_cls=ActivityZone
         )

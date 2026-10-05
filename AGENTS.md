@@ -50,6 +50,7 @@ Tests live in `tests/` and cover authentication, client behavior, resources, mod
 - `make help` — list available developer commands
 - `make format` — run Ruff formatting across the repository
 - `make lint` — run Ruff checks across the repository
+- `make typecheck` — run strict Python 3.11 mypy checks for `src/strava` and static consumer contracts in `tests/typing`
 - `make test` — run the pytest suite
 - `make coverage` — run tests with coverage reporting for `strava`
 

@@ -45,7 +45,20 @@ make lint
 make format
 ```
 
-Always run `make format` and `make lint` before submitting a PR. CI will reject unformatted or unlinted code.
+### Type Checking
+
+```bash
+make typecheck
+```
+
+Strict mypy checks use Python 3.11 semantics and cover `src/strava` and
+`tests/typing`. Add static consumer contracts there for public APIs, using
+`typing.assert_type` to verify exact inferred types. These contracts are checked
+without executing network calls; runtime pytest tests are outside the current
+mypy scope. Fix underlying types rather than adding suppressions or weakening
+strict checks.
+
+Always run `make format`, `make lint`, `make typecheck`, and `make coverage` before submitting a PR. CI checks types on every supported Python version and before building a release.
 
 ## Project Structure
 
@@ -65,8 +78,8 @@ src/strava/
 
 - **`NOT_GIVEN` sentinel** — Used to distinguish "not provided" from `None` in optional API parameters. Use it as the default for optional method arguments.
 - **Resource classes** — Each API resource group has a sync and async class pair. Methods follow the naming convention: `create`, `retrieve`, `update`, `list`.
-- **Models** — All models are `dataclass(slots=True, kw_only=True)` subclasses of `StravaModel` with automatic `from_dict`/`to_dict` serialization.
-- **Enums** — Use `StrEnum` for API enum types.
+- **Models** — All models are `dataclass(slots=True, kw_only=True)` subclasses of `StravaModel` with automatic `from_dict`/`to_dict` serialization. `from_dict` returns `Self` to preserve concrete subclass types.
+- **Enums** — Use `StrEnum` for API enum types and include a `str` fallback in model annotations (for example, `SportType | str | None`). Known strings parse as enum members; unknown API strings pass through unchanged. Test member identity, unknown strings, and serialization when updating these annotations.
 
 ## Adding a New Endpoint
 
@@ -119,6 +132,7 @@ Examples:
 - Use type hints on all public methods.
 - Use `snake_case` for functions/variables, `PascalCase` for classes, `UPPER_SNAKE_CASE` for constants.
 - Formatting and linting are handled by [Ruff](https://docs.astral.sh/ruff/).
+- Static type checking is handled by strict [mypy](https://mypy.readthedocs.io/) through `make typecheck`.
 
 ## Security
 

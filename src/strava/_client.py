@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, Self, TypeVar
+from typing import Any, Self, TypeVar, cast
 
 import httpx
 
@@ -161,7 +161,8 @@ class Strava:
         params: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         response = self._request(method, path, params=params)
-        return response.json()
+        # HTTPX decodes untyped JSON; this endpoint boundary expects object lists.
+        return cast(list[dict[str, Any]], response.json())
 
     def _request_bytes(
         self,

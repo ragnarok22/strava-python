@@ -47,6 +47,7 @@ Repository = "https://github.com/ragnarok22/strava-python"
 
 [dependency-groups]
 dev = [
+    "mypy>=2.4.0",
     "pytest>=9.0.3",
     "pytest-asyncio>=0.25",
     "pytest-cov>=6.0",
@@ -57,3 +58,8 @@ dev = [
 [build-system]
 requires = ["uv_build>=0.11.19,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+files = ["src/strava", "tests/typing"]

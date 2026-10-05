@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help format lint test coverage
+.PHONY: help format lint typecheck test coverage
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9_-]+:.*## / {printf "%-10s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -10,6 +10,9 @@ format: ## Format the codebase with Ruff
 
 lint: ## Lint the codebase with Ruff
 	uv run ruff check .
+
+typecheck: ## Check package and static consumer contracts with strict mypy
+	uv run mypy
 
 test: ## Run test suite
 	uv run pytest tests/ -v

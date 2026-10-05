@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import time
 import warnings
-from collections.abc import Callable, Generator
+from collections.abc import AsyncGenerator, Callable, Generator
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Literal
 from urllib.parse import urlencode
 
 import httpx
@@ -103,7 +103,9 @@ class OAuth2Auth(httpx.Auth):
         request.headers["Authorization"] = f"Bearer {self.access_token}"
         yield request
 
-    async def async_auth_flow(self, request: httpx.Request) -> Any:
+    async def async_auth_flow(
+        self, request: httpx.Request
+    ) -> AsyncGenerator[httpx.Request, httpx.Response]:
         if self._is_expired() and self._can_refresh():
             refresh_response = yield self._build_refresh_request(request)
             await refresh_response.aread()

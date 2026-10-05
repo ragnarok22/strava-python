@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Callable, Iterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
 from typing import Any, Generic, TypeVar
 
 from strava.models._base import StravaModel
 
-T = TypeVar("T")
+T = TypeVar("T", bound=StravaModel)
 CursorT = TypeVar("CursorT", bound=StravaModel)
 
 
@@ -34,7 +34,7 @@ class SyncPaginator(Generic[T]):
         while True:
             params = {**self._params, "page": page_num, "per_page": self._per_page}
             raw_items = self._request_fn(params=params)
-            items = [self._model_cls.from_dict(item) for item in raw_items]  # type: ignore[attr-defined]
+            items = [self._model_cls.from_dict(item) for item in raw_items]
             if not items:
                 break
             yield items
@@ -61,7 +61,7 @@ class AsyncPaginator(Generic[T]):
     def __init__(
         self,
         *,
-        request_fn: Callable[..., Any],
+        request_fn: Callable[..., Awaitable[list[dict[str, Any]]]],
         model_cls: type[T],
         params: dict[str, Any],
         per_page: int = 30,
@@ -81,7 +81,7 @@ class AsyncPaginator(Generic[T]):
         while True:
             params = {**self._params, "page": page_num, "per_page": self._per_page}
             raw_items = await self._request_fn(params=params)
-            items = [self._model_cls.from_dict(item) for item in raw_items]  # type: ignore[attr-defined]
+            items = [self._model_cls.from_dict(item) for item in raw_items]
             if not items:
                 break
             yield items

@@ -98,7 +98,7 @@ class DetailedSegmentEffort(StravaModel):
     distance: float | None = None
     is_kom: bool | None = None
     name: str | None = None
-    activity: dict | None = None
+    activity: dict[str, object] | None = None
     athlete: MetaAthlete | None = None
     moving_time: int | None = None
     start_index: int | None = None

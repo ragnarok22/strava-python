@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add strict Python 3.11 mypy checks for the SDK and static public API consumer contracts through `make typecheck`, CI, and release builds.
 - Add sync and async webhook subscription creation, listing, and deletion using application credentials.
 - Expose granted OAuth scopes and typed athlete summaries on token responses, with optional metadata for refresh responses.
 - Add Basketball, Cricket, Dance, Padel, PhysicalTherapy, and Volleyball to `SportType`.
@@ -13,6 +14,7 @@
 
 ### Fixed
 
+- Preserve concrete model and subclass return types from `from_dict`, sync and async endpoints, and paginator iteration/collection. Correct async OAuth flow, stream map, dictionary, and activity list return annotations without type-check suppressions. Enum model annotations now include the existing unknown-string fallback; known values still parse as enum members, including optional unions and nested lists, with unchanged serialization. **Typing compatibility:** code that assumes enum-only response fields must also handle unknown strings; paginators are typed for `StravaModel` subclasses.
 - Apply SDK authentication (including automatic refresh), API base URL, and timeout to every sync and async resource request when an HTTPX client is supplied, including SDK defaults. Preserve caller transport, hooks, pooling, and custom headers without mutating client settings; override default `Authorization` for API requests and remove it for unauthenticated webhooks. Preserve API path prefixes and propagate request timeouts to automatic OAuth refresh. **Compatibility change:** Configure API auth, base URL, and timeout on the SDK; supplied clients remain open after SDK close/context exit and must be closed by the caller.
 - Propagate automatic OAuth refresh failures through the SDK exception hierarchy before sending the original API request, changing tokens, or invoking the refresh callback. Preserve the OAuth response status, message, fault, response object, and rate-limit details, including streamed async error bodies.
 - Use the same SDK HTTP status mapping for token exchange, manual refresh, revocation, and deprecated deauthorization. **Compatibility change:** OAuth helpers now raise `StravaError` subclasses instead of `httpx.HTTPStatusError`; update exception handlers accordingly. Document that 401 maps to `AuthenticationError`, while `TokenExpiredError` remains exported for compatibility and is not automatically raised.

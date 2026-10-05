@@ -482,10 +482,18 @@ make test
 # Run tests with coverage
 make coverage
 
+# Check package types and static consumer contracts
+make typecheck
+
 # Lint and format
 make lint
 make format
 ```
+
+Strict mypy checks target Python 3.11 and cover `src/strava` plus
+`tests/typing`. The static consumer contracts verify public model, endpoint,
+paginator, and OAuth metadata types without executing API requests. Runtime
+tests are run with pytest and are outside the current mypy scope.
 
 ## Python Version
 

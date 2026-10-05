@@ -4,13 +4,14 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 from strava._paginator import AsyncPaginator, SyncPaginator
 from strava._types import NotGiven, resolve_per_page
+from strava.models._base import StravaModel
 
 if TYPE_CHECKING:
     from strava._async_client import AsyncStrava
     from strava._client import Strava
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=StravaModel)
 
 
 class SyncAPIResource:
