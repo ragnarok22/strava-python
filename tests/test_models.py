@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any, ClassVar
 
+import pytest
+
 from strava.models._enums import ActivityType, SportType
 from strava.models.activities import (
     ActivityZone,
@@ -523,6 +525,26 @@ class TestCommonModels:
 
 
 class TestEnums:
+    @pytest.mark.parametrize("model_cls", [SummaryActivity, DetailedActivity])
+    @pytest.mark.parametrize(
+        ("value", "member"),
+        [
+            ("Basketball", SportType.BASKETBALL),
+            ("Cricket", SportType.CRICKET),
+            ("Dance", SportType.DANCE),
+            ("Padel", SportType.PADEL),
+            ("PhysicalTherapy", SportType.PHYSICAL_THERAPY),
+            ("Volleyball", SportType.VOLLEYBALL),
+        ],
+    )
+    def test_new_sport_types_parse_and_serialize_as_typed_members(
+        self, model_cls, value, member
+    ):
+        activity = model_cls.from_dict({"sport_type": value})
+
+        assert activity.sport_type is member
+        assert activity.to_dict()["sport_type"] == value
+
     def test_sport_type_from_string(self):
         st = SportType("Run")
         assert st == SportType.RUN

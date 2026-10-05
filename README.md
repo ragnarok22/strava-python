@@ -19,6 +19,9 @@ A modern, fully-typed Python SDK for the [Strava API v3](https://developers.stra
 - Lazy pagination iterators
 - Custom exception hierarchy with rate limit details
 
+`SportType` includes Strava's April 2026 additions: `BASKETBALL`, `CRICKET`,
+`DANCE`, `PADEL`, `PHYSICAL_THERAPY`, and `VOLLEYBALL`.
+
 ## Installation
 
 ```bash
