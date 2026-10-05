@@ -32,13 +32,14 @@ src/strava/
 └── resources/               # Endpoint wrappers (sync + async pairs)
     ├── activities.py        # 8 endpoints
     ├── athletes.py          # 4 endpoints
-    ├── clubs.py             # 5 endpoints
+    ├── clubs.py             # 2 endpoints
     ├── gear.py              # 1 endpoint
     ├── routes.py            # 4 endpoints
     ├── segments.py          # 4 endpoints
     ├── segment_efforts.py   # 2 endpoints
     ├── streams.py           # 4 endpoints
-    └── uploads.py           # 2 endpoints
+    ├── uploads.py           # 2 endpoints
+    └── webhooks.py          # 3 endpoints
 ```
 
 Tests live in `tests/` and cover authentication, client behavior, resources, models, and pagination. CI workflows live in `.github/workflows/`.

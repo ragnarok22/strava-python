@@ -13,7 +13,7 @@ A modern, fully-typed Python SDK for the [Strava API v3](https://developers.stra
 
 - Sync and async clients built on [httpx](https://www.python-httpx.org/)
 - Full type annotations and `py.typed` support
-- 37 API endpoints across 10 resource groups (including legacy club endpoints)
+- 34 API endpoints across 10 resource groups (31 main API endpoints + 3 webhook endpoints)
 - 50+ dataclass models with automatic serialization
 - OAuth2 authentication with automatic token refresh
 - Lazy pagination iterators
@@ -145,7 +145,7 @@ revoke_token(
 |----------|---------|
 | **Activities** | `create`, `retrieve`, `update`, `list`, `list_comments`, `list_kudoers`, `list_laps`, `list_zones` |
 | **Athletes** | `retrieve_authenticated`, `update_authenticated`, `retrieve_zones`, `retrieve_stats` |
-| **Clubs** | `retrieve`, `list_activities`, `list_admins`, `list_members`, `list_authenticated` |
+| **Clubs** | `retrieve`, `list_authenticated` |
 | **Gear** | `retrieve` |
 | **Routes** | `retrieve`, `export_gpx`, `export_tcx`, `list_by_athlete` |
 | **Segments** | `retrieve`, `explore`, `list_starred`, `star` |
@@ -264,9 +264,21 @@ not switch hosts automatically based on the clock. Once the future host is
 available, you can opt in explicitly with `base_url="https://api-v3.strava.com"`
 on either `Strava` or `AsyncStrava`.
 
-Some methods remain in the SDK for compatibility but are affected by Strava's 2026 Developer Program changes:
+### Breaking change: retired club endpoints
 
-- `clubs.list_activities()`, `clubs.list_admins()`, and `clubs.list_members()` are deprecated by Strava effective September 1, 2026.
+Strava removed club activities, club members, and club administrators endpoints
+on September 1, 2026. The SDK has removed `clubs.list_activities()`,
+`clubs.list_members()`, and `clubs.list_admins()` from both `Strava` and
+`AsyncStrava`. Accessing these methods now raises `AttributeError`.
+
+**Migration:** Remove calls to these methods and any application features that
+depend on them. Strava provides no documented replacement endpoints.
+`clubs.retrieve()` and `clubs.list_authenticated()` remain supported.
+`ClubActivity` and `ClubAthlete` models and their public exports remain available
+for parsing existing data.
+
+Other methods are affected by Strava's 2026 Developer Program changes:
+
 - `segments.explore()` is restricted to approved Extended Access applications effective September 1, 2026.
 - `deauthorize()` is deprecated; use `revoke_token()` with your client credentials instead.
 

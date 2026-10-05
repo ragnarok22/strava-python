@@ -17,6 +17,10 @@
 - Use opaque cursor pagination for activity comments, expose optional `Comment.cursor`, and guard missing or nonadvancing cursors only when another page is needed. Preserve `per_page` as a comment `page_size` alias, with `page_size` taking precedence.
 - Restore the default API base URL to the current official `https://www.strava.com/api/v3` for sync and async clients. Correct migration guidance: the future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027; switching requires an explicit `base_url` override and is not based on the clock.
 
+### Removed
+
+- **Breaking:** Remove `clubs.list_activities()`, `clubs.list_members()`, and `clubs.list_admins()` from both sync and async clients after Strava removed these endpoints on September 1, 2026. Accessing these methods now raises `AttributeError`; remove their calls and dependent application features. Strava provides no documented replacement endpoints. `clubs.retrieve()` and `clubs.list_authenticated()` remain supported, and `ClubActivity` / `ClubAthlete` models and public exports remain available for parsing existing data.
+
 ## [0.5.1] - 2026-06-05
 
 - Harden pagination, rate-limit, and datetime parsing edge cases.
