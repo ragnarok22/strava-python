@@ -12,6 +12,8 @@
 
 ### Fixed
 
+- Continue sync and async page-number pagination until an empty response instead of truncating results at short intermediate pages.
+- Use opaque cursor pagination for activity comments, expose optional `Comment.cursor`, and guard missing or nonadvancing cursors only when another page is needed. Preserve `per_page` as a comment `page_size` alias, with `page_size` taking precedence.
 - Restore the default API base URL to the current official `https://www.strava.com/api/v3` for sync and async clients. Correct migration guidance: the future host is `https://api-v3.strava.com` (without `www`), available starting January 4, 2027; switching requires an explicit `base_url` override and is not based on the clock.
 
 ## [0.5.1] - 2026-06-05

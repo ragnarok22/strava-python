@@ -161,6 +161,7 @@ class Comment(StravaModel):
     text: str | None = None
     athlete: SummaryAthlete | None = None
     created_at: datetime | None = None
+    cursor: str | None = None
 
 
 @dataclass(slots=True, kw_only=True)

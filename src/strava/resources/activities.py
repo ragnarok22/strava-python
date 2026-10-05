@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from strava._paginator import AsyncPaginator, SyncPaginator
+from strava._paginator import (
+    AsyncCursorPaginator,
+    AsyncPaginator,
+    SyncCursorPaginator,
+    SyncPaginator,
+)
 from strava._serialization import strip_not_given, to_form_data
-from strava._types import NOT_GIVEN, NotGiven
+from strava._types import NOT_GIVEN, NotGiven, resolve_per_page
 from strava.models._enums import ActivityType, SportType
 from strava.models.activities import (
     ActivityZone,
@@ -165,12 +170,15 @@ class Activities(SyncAPIResource):
         page_size: int | NotGiven = NOT_GIVEN,
         after_cursor: str | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[Comment]:
-        params = strip_not_given({"page_size": page_size, "after_cursor": after_cursor})
-        return self._paginated_get(
-            f"/activities/{activity_id}/comments",
+        """List comments by cursor; page_size overrides the legacy per_page alias."""
+        size = per_page if isinstance(page_size, NotGiven) else page_size
+        return SyncCursorPaginator(
+            request_fn=lambda **kw: self._client._request_json(
+                "GET", f"/activities/{activity_id}/comments", params=kw["params"]
+            ),
             model_cls=Comment,
-            params=params,
-            per_page=per_page,
+            params=strip_not_given({"after_cursor": after_cursor}),
+            per_page=resolve_per_page(size),
         )
 
     def list_kudoers(
@@ -292,12 +300,15 @@ class AsyncActivities(AsyncAPIResource):
         page_size: int | NotGiven = NOT_GIVEN,
         after_cursor: str | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[Comment]:
-        params = strip_not_given({"page_size": page_size, "after_cursor": after_cursor})
-        return self._paginated_get(
-            f"/activities/{activity_id}/comments",
+        """List comments by cursor; page_size overrides the legacy per_page alias."""
+        size = per_page if isinstance(page_size, NotGiven) else page_size
+        return AsyncCursorPaginator(
+            request_fn=lambda **kw: self._client._request_json(
+                "GET", f"/activities/{activity_id}/comments", params=kw["params"]
+            ),
             model_cls=Comment,
-            params=params,
-            per_page=per_page,
+            params=strip_not_given({"after_cursor": after_cursor}),
+            per_page=resolve_per_page(size),
         )
 
     def list_kudoers(

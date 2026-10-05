@@ -104,7 +104,10 @@ class TestActivitiesResource:
     @respx.mock
     async def test_async_list_preserves_optional_device_name(self, device_data):
         respx.get(f"{BASE}/athlete/activities").mock(
-            return_value=httpx.Response(200, json=[{"id": 1, **device_data}])
+            side_effect=[
+                httpx.Response(200, json=[{"id": 1, **device_data}]),
+                httpx.Response(200, json=[]),
+            ]
         )
 
         async with AsyncStrava(access_token="test_token") as client:

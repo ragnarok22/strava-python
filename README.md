@@ -266,6 +266,49 @@ for page in client.activities.list(per_page=50).pages():
     print(f"Got {len(page)} activities")
 ```
 
+Page-number pagination continues until Strava returns an empty page, even if an
+intermediate page contains fewer than `per_page` items. No requests are made
+until iteration begins. `collect(max_items=0)` returns an empty list without a
+request; negative limits raise `ValueError`. A positive limit stops as soon as
+enough items have been collected, without fetching another page.
+
+### Comment cursors
+
+`activities.list_comments()` uses cursor pagination and sends only `page_size`
+and, when present, `after_cursor`. The default page size is 30. `per_page` remains
+a backward-compatible alias for `page_size`; **`page_size` wins when both are
+supplied**.
+
+```python
+comments = client.activities.list_comments(123, page_size=50)
+for comment in comments:
+    print(comment.text)
+
+# Resume after a previously saved comment cursor, passed through unchanged.
+next_comments = client.activities.list_comments(
+    123, page_size=50, after_cursor=saved_cursor
+).collect(max_items=20)
+```
+
+Each `Comment` exposes an optional `cursor`. The paginator uses the last raw
+comment's cursor to fetch the next page, preserving opaque tokens without
+decoding or modifying them. Short pages still continue until an empty response.
+If continuation requires a missing, invalid, repeated, or cycling cursor, it
+raises `RuntimeError` rather than looping indefinitely. Cursor validation is
+deferred until another page is needed, so bounded collection and stopping
+iteration after the current page do not raise unnecessarily.
+
+Async paginators provide the same behavior via `async for`,
+`async for page in paginator.pages()`, and `await paginator.collect(...)`,
+including for comments:
+
+```python
+async for comment in async_client.activities.list_comments(123, page_size=50):
+    print(comment.text)
+
+comments = await async_client.activities.list_comments(123).collect(max_items=20)
+```
+
 ## Error Handling
 
 ```python

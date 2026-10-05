@@ -3,7 +3,10 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Callable, Iterator
 from typing import Any, Generic, TypeVar
 
+from strava.models._base import StravaModel
+
 T = TypeVar("T")
+CursorT = TypeVar("CursorT", bound=StravaModel)
 
 
 class SyncPaginator(Generic[T]):
@@ -35,8 +38,6 @@ class SyncPaginator(Generic[T]):
             if not items:
                 break
             yield items
-            if len(raw_items) < self._per_page:
-                break
             page_num += 1
 
     def collect(self, *, max_items: int | None = None) -> list[T]:
@@ -84,8 +85,6 @@ class AsyncPaginator(Generic[T]):
             if not items:
                 break
             yield items
-            if len(raw_items) < self._per_page:
-                break
             page_num += 1
 
     async def collect(self, *, max_items: int | None = None) -> list[T]:
@@ -101,3 +100,57 @@ class AsyncPaginator(Generic[T]):
             if max_items is not None and len(result) >= max_items:
                 break
         return result
+
+
+def _next_cursor(last_item: dict[str, Any], seen_cursors: set[str]) -> str:
+    cursor = last_item.get("cursor")
+    if not isinstance(cursor, str) or not cursor:
+        raise RuntimeError(
+            "Cannot continue cursor pagination: last item has a missing or invalid cursor"
+        )
+    if cursor in seen_cursors:
+        raise RuntimeError(
+            "Cannot continue cursor pagination: cursor did not advance (repeated or cycling)"
+        )
+    seen_cursors.add(cursor)
+    return cursor
+
+
+class SyncCursorPaginator(SyncPaginator[CursorT]):
+    """Lazy cursor pagination; the inherited per_page sets the API's page_size."""
+
+    def pages(self) -> Iterator[list[CursorT]]:
+        params = {**self._params, "page_size": self._per_page}
+        seen_cursors: set[str] = set()
+        if "after_cursor" in params:
+            seen_cursors.add(params["after_cursor"])
+        while True:
+            raw_items = self._request_fn(params=params)
+            if not raw_items:
+                break
+            yield [self._model_cls.from_dict(item) for item in raw_items]
+            # Validate only when resumed: bounded collection can stop at this page.
+            params = {
+                **params,
+                "after_cursor": _next_cursor(raw_items[-1], seen_cursors),
+            }
+
+
+class AsyncCursorPaginator(AsyncPaginator[CursorT]):
+    """Lazy async cursor pagination with the same API as AsyncPaginator."""
+
+    async def pages(self) -> AsyncIterator[list[CursorT]]:
+        params = {**self._params, "page_size": self._per_page}
+        seen_cursors: set[str] = set()
+        if "after_cursor" in params:
+            seen_cursors.add(params["after_cursor"])
+        while True:
+            raw_items = await self._request_fn(params=params)
+            if not raw_items:
+                break
+            yield [self._model_cls.from_dict(item) for item in raw_items]
+            # Validate only when resumed: bounded collection can stop at this page.
+            params = {
+                **params,
+                "after_cursor": _next_cursor(raw_items[-1], seen_cursors),
+            }
