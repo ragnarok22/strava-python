@@ -79,7 +79,9 @@ class TestActivitiesResource:
         route = respx.get(f"{BASE}/athlete/activities").mock(
             return_value=httpx.Response(
                 200,
-                json=[{"id": 1, "name": "Morning Run"}],
+                json=[
+                    {"id": 1, "name": "Morning Run", "device_name": "Garmin Forerunner"}
+                ],
             )
         )
         activities = client.activities.list(before=10, after=5, per_page=2).collect(
@@ -87,11 +89,32 @@ class TestActivitiesResource:
         )
 
         assert len(activities) == 1
+        assert activities[0].device_name == "Garmin Forerunner"
+        assert activities[0].to_dict()["device_name"] == "Garmin Forerunner"
         params = route.calls.last.request.url.params
         assert params["before"] == "10"
         assert params["after"] == "5"
         assert params["page"] == "1"
         assert params["per_page"] == "2"
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "device_data", [{"device_name": "Garmin Edge"}, {"device_name": None}, {}]
+    )
+    @respx.mock
+    async def test_async_list_preserves_optional_device_name(self, device_data):
+        respx.get(f"{BASE}/athlete/activities").mock(
+            return_value=httpx.Response(200, json=[{"id": 1, **device_data}])
+        )
+
+        async with AsyncStrava(access_token="test_token") as client:
+            activities = await client.activities.list().collect()
+
+        assert activities[0].device_name == device_data.get("device_name")
+        if device_data.get("device_name") is None:
+            assert "device_name" not in activities[0].to_dict()
+        else:
+            assert activities[0].to_dict()["device_name"] == device_data["device_name"]
 
     @respx.mock
     def test_list_laps(self, client: Strava):

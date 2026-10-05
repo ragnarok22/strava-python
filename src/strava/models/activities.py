@@ -43,6 +43,7 @@ class SummaryActivity(StravaModel):
     photo_count: int | None = None
     total_photo_count: int | None = None
     map: PolylineMap | None = None
+    device_name: str | None = None
     trainer: bool | None = None
     commute: bool | None = None
     manual: bool | None = None

@@ -41,6 +41,7 @@ with Strava(access_token="your_token") as client:
     # List recent activities
     for activity in client.activities.list(per_page=10):
         print(f"{activity.name} - {activity.distance}m")
+        print(activity.device_name)  # Recording device, when supplied by Strava
 ```
 
 ### Async
