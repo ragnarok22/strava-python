@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 
 import httpx
 
+from strava._exceptions import raise_for_status
 from strava.models.athletes import SummaryAthlete
 
 TOKEN_URL = "https://www.strava.com/oauth/token"
@@ -73,6 +74,7 @@ class OAuth2Auth(httpx.Auth):
         )
 
     def _handle_refresh_response(self, response: httpx.Response) -> None:
+        raise_for_status(response)
         if response.status_code == 200:
             body = response.json()
             self.access_token = body["access_token"]
@@ -129,7 +131,7 @@ def build_authorization_url(
 
 def _post_token(data: dict[str, str]) -> TokenResponse:
     response = httpx.post(TOKEN_URL, data=data)
-    response.raise_for_status()
+    raise_for_status(response)
     body = response.json()
     return TokenResponse(
         access_token=body["access_token"],
@@ -194,7 +196,7 @@ def revoke_token(
         data=data,
         auth=httpx.BasicAuth(str(client_id), client_secret),
     )
-    response.raise_for_status()
+    raise_for_status(response)
 
 
 def deauthorize(
@@ -225,4 +227,4 @@ def deauthorize(
         DEAUTHORIZE_URL,
         data={"access_token": access_token},
     )
-    response.raise_for_status()
+    raise_for_status(response)

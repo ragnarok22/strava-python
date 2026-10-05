@@ -124,6 +124,10 @@ client = Strava(
 )
 ```
 
+If automatic refresh fails with an HTTP error, the SDK raises the error from the
+OAuth response before sending the original API request. Tokens remain unchanged
+and `on_token_refresh` is not called. This applies to both sync and async clients.
+
 ### Revoke tokens
 
 ```python
@@ -378,17 +382,14 @@ from strava import (
     AuthorizationError,
     NotFoundError,
     RateLimitError,
-    TokenExpiredError,
     ValidationError,
     ServerError,
 )
 
 try:
     activity = client.activities.retrieve(123)
-except TokenExpiredError:
-    print("Access token has expired — refresh it")
 except AuthenticationError:
-    print("Invalid or missing access token")
+    print("Authentication failed — check your credentials and tokens")
 except AuthorizationError:
     print("Insufficient permissions")
 except NotFoundError:
@@ -402,6 +403,33 @@ except ServerError:
 except StravaError as e:
     print(f"API error {e.status_code}: {e.message}")
 ```
+
+API requests and OAuth operations (`exchange_token()`, `refresh_access_token()`,
+`revoke_token()`, deprecated `deauthorize()`, and automatic refresh) use the same
+SDK exception hierarchy:
+
+| HTTP status | Exception |
+|-------------|-----------|
+| 400, 422 | `ValidationError` |
+| 401 | `AuthenticationError` |
+| 403 | `AuthorizationError` |
+| 404 | `NotFoundError` |
+| 429 | `RateLimitError` |
+| 5xx | `ServerError` |
+| Other 4xx | `StravaError` |
+
+These exceptions preserve `status_code`, `message`, the original HTTP `response`,
+and the JSON `fault` dictionary when available. Non-JSON error responses use the
+response text as the message. `RateLimitError` also exposes the general and read
+rate-limit limits and usage from the error response headers.
+
+A 401 maps to `AuthenticationError`; it does not reliably identify an expired
+token. `TokenExpiredError` remains exported as an `AuthenticationError` subclass
+for compatibility, but the SDK does not automatically raise it.
+
+**Compatibility change:** OAuth HTTP failures now raise SDK exceptions instead
+of `httpx.HTTPStatusError`. Update handlers that catch `httpx.HTTPStatusError` for
+OAuth operations to catch `StravaError` or the appropriate subclass.
 
 ## Development
 

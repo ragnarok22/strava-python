@@ -13,6 +13,8 @@
 
 ### Fixed
 
+- Propagate automatic OAuth refresh failures through the SDK exception hierarchy before sending the original API request, changing tokens, or invoking the refresh callback. Preserve the OAuth response status, message, fault, response object, and rate-limit details, including streamed async error bodies.
+- Use the same SDK HTTP status mapping for token exchange, manual refresh, revocation, and deprecated deauthorization. **Compatibility change:** OAuth helpers now raise `StravaError` subclasses instead of `httpx.HTTPStatusError`; update exception handlers accordingly. Document that 401 maps to `AuthenticationError`, while `TokenExpiredError` remains exported for compatibility and is not automatically raised.
 - Read streamed OAuth refresh responses asynchronously in async clients before parsing tokens, preserving token rotation and closing response bodies correctly.
 - Normalize keyed and legacy list responses into typed `StreamSet` results for all four sync and async stream endpoints, including empty responses and unknown stream types. Send CSV `keys` and `key_by_type=true` for activity, segment-effort, and segment streams, and omit query parameters for route streams. Compatibility note: `key_by_type=False` now raises `ValueError` before HTTP; remove it or pass `True`. `StreamSet.from_stream_list()` remains supported.
 - Continue sync and async page-number pagination until an empty response instead of truncating results at short intermediate pages.
