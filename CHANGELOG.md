@@ -5,6 +5,7 @@
 ### Added
 
 - Add sync and async webhook subscription creation, listing, and deletion using application credentials.
+- Expose granted OAuth scopes and typed athlete summaries on token responses, with optional metadata for refresh responses.
 
 ## [0.5.1] - 2026-06-05
 

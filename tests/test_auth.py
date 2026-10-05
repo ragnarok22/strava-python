@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from urllib.parse import parse_qs
 
 import httpx
 import pytest
@@ -14,8 +15,11 @@ from strava._auth import (
     OAuth2Auth,
     build_authorization_url,
     deauthorize,
+    exchange_token,
+    refresh_access_token,
     revoke_token,
 )
+from strava.models.athletes import SummaryAthlete
 
 
 class TestBuildAuthorizationUrl:
@@ -124,6 +128,74 @@ class TestOAuth2Auth:
         assert auth.access_token == "new_token"
         assert auth.refresh_token == "new_refresh"
         assert refreshed["access_token"] == "new_token"
+
+
+class TestTokenResponses:
+    @pytest.mark.parametrize("scope", ["activity:read activity:write", "", None])
+    @respx.mock
+    def test_exchange_preserves_granted_scope_and_parses_athlete(self, scope):
+        route = respx.post(TOKEN_URL).mock(
+            return_value=httpx.Response(
+                200,
+                json={
+                    "access_token": "new_access",
+                    "refresh_token": "new_refresh",
+                    "expires_at": 21600,
+                    "expires_in": 21600,
+                    "token_type": "Bearer",
+                    "scope": scope,
+                    "athlete": {"id": 123, "firstname": "Jane", "lastname": "Doe"},
+                },
+            )
+        )
+
+        tokens = exchange_token("12345", "test_secret", "test_code")
+
+        assert tokens.access_token == "new_access"
+        assert tokens.refresh_token == "new_refresh"
+        assert tokens.expires_at == 21600
+        assert tokens.expires_in == 21600
+        assert tokens.token_type == "Bearer"
+        assert tokens.scope == scope
+        assert isinstance(tokens.athlete, SummaryAthlete)
+        assert tokens.athlete.id == 123
+        assert tokens.athlete.firstname == "Jane"
+        assert parse_qs(route.calls.last.request.content.decode()) == {
+            "client_id": ["12345"],
+            "client_secret": ["test_secret"],
+            "code": ["test_code"],
+            "grant_type": ["authorization_code"],
+        }
+
+    @pytest.mark.parametrize("metadata", [{}, {"scope": None, "athlete": None}])
+    @respx.mock
+    def test_refresh_accepts_missing_or_null_metadata(self, metadata):
+        route = respx.post(TOKEN_URL).mock(
+            return_value=httpx.Response(
+                200,
+                json={
+                    "access_token": "refreshed_access",
+                    "refresh_token": "rotated_refresh",
+                    "expires_at": 21600,
+                    "expires_in": 21600,
+                    "token_type": "Bearer",
+                    **metadata,
+                },
+            )
+        )
+
+        tokens = refresh_access_token("12345", "test_secret", "old_refresh")
+
+        assert tokens.access_token == "refreshed_access"
+        assert tokens.refresh_token == "rotated_refresh"
+        assert tokens.scope is None
+        assert tokens.athlete is None
+        assert parse_qs(route.calls.last.request.content.decode()) == {
+            "client_id": ["12345"],
+            "client_secret": ["test_secret"],
+            "grant_type": ["refresh_token"],
+            "refresh_token": ["old_refresh"],
+        }
 
 
 class TestRevokeToken:

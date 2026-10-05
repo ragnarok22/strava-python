@@ -76,7 +76,15 @@ tokens = exchange_token(
     code="code_from_callback",
 )
 print(tokens.access_token, tokens.refresh_token, tokens.expires_at)
+print(tokens.scope)  # Granted scopes, e.g. "activity:read activity:write"
+if tokens.athlete is not None:
+    print(tokens.athlete.id, tokens.athlete.firstname)
 ```
+
+`TokenResponse.scope` preserves the space-delimited scopes actually granted by
+the athlete; these can differ from the requested scopes. `TokenResponse.athlete`
+contains a typed `SummaryAthlete` when returned. Both fields default to `None`
+when omitted, including in token refresh responses.
 
 ### Refresh a token manually
 

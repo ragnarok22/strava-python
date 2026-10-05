@@ -9,6 +9,8 @@ from urllib.parse import urlencode
 
 import httpx
 
+from strava.models.athletes import SummaryAthlete
+
 TOKEN_URL = "https://www.strava.com/oauth/token"
 AUTHORIZE_URL = "https://www.strava.com/oauth/authorize"
 DEAUTHORIZE_URL = "https://www.strava.com/oauth/deauthorize"
@@ -19,11 +21,15 @@ TokenTypeHint = Literal["access_token", "refresh_token"]
 
 @dataclass(slots=True)
 class TokenResponse:
+    """OAuth tokens with optional granted scopes and athlete summary metadata."""
+
     access_token: str
     refresh_token: str
     expires_at: int
     expires_in: int
     token_type: str
+    scope: str | None = None
+    athlete: SummaryAthlete | None = None
 
 
 class OAuth2Auth(httpx.Auth):
@@ -130,6 +136,12 @@ def _post_token(data: dict[str, str]) -> TokenResponse:
         expires_at=body["expires_at"],
         expires_in=body["expires_in"],
         token_type=body["token_type"],
+        scope=body.get("scope"),
+        athlete=(
+            SummaryAthlete.from_dict(body["athlete"])
+            if body.get("athlete") is not None
+            else None
+        ),
     )
 
 
