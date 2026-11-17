@@ -1,6 +1,9 @@
 from strava._async_client import AsyncStrava
 from strava._auth import (
     TokenResponse,
+    async_exchange_token,
+    async_refresh_access_token,
+    async_revoke_token,
     build_authorization_url,
     deauthorize,
     exchange_token,
@@ -23,8 +26,10 @@ from strava._paginator import AsyncPaginator, SyncPaginator
 from strava._types import NOT_GIVEN, NotGiven
 from strava.models import (
     ActivityStats,
+    ActivityTag,
     ActivityTotal,
     ActivityType,
+    ActivityVisibility,
     ActivityZone,
     AltitudeStream,
     BaseStream,
@@ -87,8 +92,10 @@ from strava.models import (
 __all__ = [
     "NOT_GIVEN",
     "ActivityStats",
+    "ActivityTag",
     "ActivityTotal",
     "ActivityType",
+    "ActivityVisibility",
     "ActivityZone",
     "AltitudeStream",
     "AsyncPaginator",
@@ -161,6 +168,9 @@ __all__ = [
     "WebhookValidationResponse",
     "ZoneRange",
     "Zones",
+    "async_exchange_token",
+    "async_refresh_access_token",
+    "async_revoke_token",
     "build_authorization_url",
     "deauthorize",
     "exchange_token",

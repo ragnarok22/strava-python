@@ -35,6 +35,11 @@ class Streams(SyncAPIResource):
         keys: list[str],
         key_by_type: Literal[True] = True,
     ) -> StreamSet:
+        """Get typed activity streams; Only Me activities need activity:read_all.
+
+        Other activities require activity:read. keys names the requested streams;
+        key_by_type must remain True.
+        """
         return self._get_streams(
             f"/activities/{activity_id}/streams",
             keys=keys,
@@ -42,6 +47,7 @@ class Streams(SyncAPIResource):
         )
 
     def get_route_streams(self, route_id: int) -> StreamSet:
+        """Get all route streams; private routes require read_all."""
         return self._get_streams(f"/routes/{route_id}/streams")
 
     def get_segment_effort_streams(
@@ -51,6 +57,7 @@ class Streams(SyncAPIResource):
         keys: list[str],
         key_by_type: Literal[True] = True,
     ) -> StreamSet:
+        """Get requested effort streams; requires read_all."""
         return self._get_streams(
             f"/segment_efforts/{effort_id}/streams",
             keys=keys,
@@ -64,6 +71,7 @@ class Streams(SyncAPIResource):
         keys: list[str],
         key_by_type: Literal[True] = True,
     ) -> StreamSet:
+        """Get requested segment streams; private segments require read_all."""
         return self._get_streams(
             f"/segments/{segment_id}/streams",
             keys=keys,
@@ -90,6 +98,11 @@ class AsyncStreams(AsyncAPIResource):
         keys: list[str],
         key_by_type: Literal[True] = True,
     ) -> StreamSet:
+        """Get typed activity streams; Only Me activities need activity:read_all.
+
+        Other activities require activity:read. keys names the requested streams;
+        key_by_type must remain True.
+        """
         return await self._get_streams(
             f"/activities/{activity_id}/streams",
             keys=keys,
@@ -97,6 +110,7 @@ class AsyncStreams(AsyncAPIResource):
         )
 
     async def get_route_streams(self, route_id: int) -> StreamSet:
+        """Get all route streams; private routes require read_all."""
         return await self._get_streams(f"/routes/{route_id}/streams")
 
     async def get_segment_effort_streams(
@@ -106,6 +120,7 @@ class AsyncStreams(AsyncAPIResource):
         keys: list[str],
         key_by_type: Literal[True] = True,
     ) -> StreamSet:
+        """Get requested effort streams; requires read_all."""
         return await self._get_streams(
             f"/segment_efforts/{effort_id}/streams",
             keys=keys,
@@ -119,6 +134,7 @@ class AsyncStreams(AsyncAPIResource):
         keys: list[str],
         key_by_type: Literal[True] = True,
     ) -> StreamSet:
+        """Get requested segment streams; private segments require read_all."""
         return await self._get_streams(
             f"/segments/{segment_id}/streams",
             keys=keys,

@@ -21,6 +21,24 @@ jobs:
       - name: Install dependencies
         run: uv sync --locked
 
+      - name: Check release version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          uv run python - <<'PY'
+          import os
+          import tomllib
+          from pathlib import Path
+
+          version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          tag = os.environ["RELEASE_TAG"]
+          if tag != f"v{version}":
+              raise SystemExit(f"Release tag {tag!r} does not match package version {version!r}")
+          PY
+
+      - name: Format check
+        run: uv run ruff format --check .
+
       - name: Lint
         run: uv run ruff check .
 
@@ -32,6 +50,23 @@ jobs:
 
       - name: Build package
         run: uv build
+
+      - name: Check installed wheel
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          uv run --isolated --no-project --with dist/*.whl python -I - <<'PY'
+          import os
+          from importlib.metadata import version
+          from importlib.resources import files
+
+          from strava import AsyncStrava, Strava, SummaryActivity, async_exchange_token
+
+          assert version("strava") == os.environ["RELEASE_TAG"].removeprefix("v")
+          assert files("strava").joinpath("py.typed").is_file()
+          assert SummaryActivity.from_dict({"id": 1}).id == 1
+          assert callable(Strava) and callable(AsyncStrava) and callable(async_exchange_token)
+          PY
 
       - uses: actions/upload-artifact@v7
         with:

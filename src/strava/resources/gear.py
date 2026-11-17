@@ -6,6 +6,7 @@ from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
 class Gear(SyncAPIResource):
     def retrieve(self, gear_id: str) -> DetailedGear:
+        """Retrieve equipment by its string ID; distance is measured in metres."""
         return self._client._request_model(
             "GET", f"/gear/{gear_id}", model_cls=DetailedGear
         )
@@ -13,6 +14,7 @@ class Gear(SyncAPIResource):
 
 class AsyncGear(AsyncAPIResource):
     async def retrieve(self, gear_id: str) -> DetailedGear:
+        """Retrieve equipment by its string ID; distance is measured in metres."""
         return await self._client._request_model(
             "GET", f"/gear/{gear_id}", model_cls=DetailedGear
         )

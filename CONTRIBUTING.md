@@ -21,35 +21,50 @@ uv sync
 
 ## Development Workflow
 
-### Running Tests
+### Choose Validation by Risk
+
+Run the checks relevant to the change. Add tests for meaningful bugs, critical
+logic, and realistic regressions, not to exercise every changed line. Reuse
+existing fixtures and tests before adding new ones.
+
+- **Documentation only:** check local links and format the Markdown files you
+  changed. Check that code examples parse and match the public API; do not run
+  examples against real athlete accounts as part of validation.
+- **Focused bug or endpoint change:** reproduce the problem first when practical,
+  add a minimal regression test, and run the affected pytest cases. For example:
+
+  ```bash
+  uv run pytest tests/test_resources.py -k activities -v
+  ```
+
+- **Public API or model typing:** also run `make typecheck` and update relevant
+  static consumer contracts under `tests/typing`.
+- **Cross-cutting changes, releases, or explicit requests:** run the broader test
+  suite and use coverage where it helps identify missing critical cases.
+
+Format/lint changed Python files with Ruff, or use `make format` / `make lint`
+when repository-wide checks are appropriate. Avoid unrelated formatting changes.
+For documentation, pass only the files you changed, for example:
 
 ```bash
-make test
+uv run ruff format README.md CONTRIBUTING.md docs/usage.md docs/api.md docs/migration.md
 ```
 
-### Running Tests with Coverage
+Local risk-based checks do **not** replace required CI. CI runs shared formatting
+and lint checks, plus type checks and tests on Python 3.11, 3.12, 3.13, and 3.14.
+The Python 3.14 job also collects coverage. Keep multiversion validation intact
+and do not bypass failing checks. You do not need a full local coverage run for
+every pull request.
 
-```bash
-make coverage
-```
+### Available Commands
 
-### Linting
-
-```bash
-make lint
-```
-
-### Formatting
-
-```bash
-make format
-```
-
-### Type Checking
-
-```bash
-make typecheck
-```
+| Command | Purpose |
+| --- | --- |
+| `make test` | Run the full pytest suite when warranted |
+| `make coverage` | Run the full suite with a coverage report |
+| `make lint` | Run repository-wide Ruff checks |
+| `make format` | Format the repository with Ruff |
+| `make typecheck` | Check package types and static consumer contracts |
 
 Strict mypy checks use Python 3.11 semantics and cover `src/strava` and
 `tests/typing`. Add static consumer contracts there for public APIs, using
@@ -68,7 +83,10 @@ Sync/async endpoint tests can use the shared `client` fixture from
 `client_options` in a test module for special token scenarios. Module-local
 sync-only fixtures remain available where appropriate.
 
-Always run `make format`, `make lint`, `make typecheck`, and `make coverage` before submitting a PR. CI checks types on every supported Python version and before building a release.
+Before submitting, report the targeted checks you ran and any relevant
+limitations. CI checks types on every supported Python version and before
+building a release. The release workflow also validates the version/tag and
+smoke-tests the installed wheel before publishing.
 
 ## Project Structure
 
@@ -112,7 +130,10 @@ src/strava/
 - Use `pytest` and name test files `test_*.py` under `tests/`.
 - Use `respx` to mock `httpx` requests — never make real API calls in tests.
 - Use `@pytest.mark.asyncio` for async tests.
-- Test both success paths and error handling.
+- Cover relevant success paths and failure modes, including sync/async parity
+  when changing shared behavior.
+- Prefer a small regression test for an actual failure over redundant, trivial,
+  or heavily mocked tests. Keep credentials and network access out of tests/CI.
 
 ## Commit Messages
 
@@ -133,6 +154,7 @@ Examples:
 
 - Keep PRs focused — one feature or fix per PR.
 - Include a clear description of what changed and why.
+- Summarize verification and any important compatibility or coverage impact.
 - Make sure all CI checks pass before requesting review.
 - If adding a new endpoint, include the Strava API reference link in the PR description.
 

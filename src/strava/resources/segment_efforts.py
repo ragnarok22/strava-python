@@ -8,6 +8,7 @@ from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
 class SegmentEfforts(SyncAPIResource):
     def retrieve(self, effort_id: int) -> DetailedSegmentEffort:
+        """Retrieve the athlete's effort; requires a Strava subscription."""
         return self._client._request_model(
             "GET",
             f"/segment_efforts/{effort_id}",
@@ -22,6 +23,11 @@ class SegmentEfforts(SyncAPIResource):
         end_date_local: str | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> list[DetailedSegmentEffort]:
+        """Fetch one list of efforts, not a lazy paginator.
+
+        Date filters are local ISO 8601 strings. Requires a Strava subscription;
+        per_page controls this response's size (Strava defaults to 30).
+        """
         params = strip_not_given(
             {
                 "segment_id": segment_id,
@@ -40,6 +46,7 @@ class SegmentEfforts(SyncAPIResource):
 
 class AsyncSegmentEfforts(AsyncAPIResource):
     async def retrieve(self, effort_id: int) -> DetailedSegmentEffort:
+        """Retrieve the athlete's effort; requires a Strava subscription."""
         return await self._client._request_model(
             "GET",
             f"/segment_efforts/{effort_id}",
@@ -54,6 +61,11 @@ class AsyncSegmentEfforts(AsyncAPIResource):
         end_date_local: str | NotGiven = NOT_GIVEN,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> list[DetailedSegmentEffort]:
+        """Fetch one list of efforts, not a lazy paginator.
+
+        Date filters are local ISO 8601 strings. Requires a Strava subscription;
+        per_page controls this response's size (Strava defaults to 30).
+        """
         params = strip_not_given(
             {
                 "segment_id": segment_id,

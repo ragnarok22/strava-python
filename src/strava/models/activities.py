@@ -4,7 +4,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from strava.models._base import StravaModel
-from strava.models._enums import ActivityType, SportType
+from strava.models._enums import (
+    ActivityTag,
+    ActivityType,
+    ActivityVisibility,
+    SportType,
+)
 from strava.models.athletes import MetaAthlete, SummaryAthlete
 from strava.models.common import PhotosSummary, PolylineMap, Split, TimedZoneRange
 from strava.models.gear import SummaryGear
@@ -50,8 +55,10 @@ class SummaryActivity(StravaModel):
     device_name: str | None = None
     trainer: bool | None = None
     commute: bool | None = None
+    tags: list[ActivityTag | str] | None = None
     manual: bool | None = None
     private: bool | None = None
+    visibility: ActivityVisibility | str | None = None
     flagged: bool | None = None
     workout_type: int | None = None
     upload_id_str: str | None = None
@@ -106,8 +113,10 @@ class DetailedActivity(StravaModel):
     map: PolylineMap | None = None
     trainer: bool | None = None
     commute: bool | None = None
+    tags: list[ActivityTag | str] | None = None
     manual: bool | None = None
     private: bool | None = None
+    visibility: ActivityVisibility | str | None = None
     flagged: bool | None = None
     workout_type: int | None = None
     upload_id_str: str | None = None
@@ -144,12 +153,14 @@ class DetailedActivity(StravaModel):
 @dataclass(slots=True, kw_only=True)
 class UpdatableActivity(StravaModel):
     commute: bool | None = None
+    tags: dict[str, bool] | None = None
     trainer: bool | None = None
     hide_from_home: bool | None = None
     description: str | None = None
     name: str | None = None
     type: ActivityType | str | None = None
     sport_type: SportType | str | None = None
+    visibility: ActivityVisibility | str | None = None
     gear_id: str | None = None
 
 

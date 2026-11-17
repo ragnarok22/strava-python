@@ -8,6 +8,7 @@ from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
 class Clubs(SyncAPIResource):
     def retrieve(self, club_id: int) -> DetailedClub:
+        """Retrieve a club's detailed representation."""
         return self._client._request_model(
             "GET", f"/clubs/{club_id}", model_cls=DetailedClub
         )
@@ -17,6 +18,7 @@ class Clubs(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryClub]:
+        """Lazily list the athlete's clubs; per_page is not a total limit."""
         return self._paginated_get(
             "/athlete/clubs",
             model_cls=SummaryClub,
@@ -26,6 +28,7 @@ class Clubs(SyncAPIResource):
 
 class AsyncClubs(AsyncAPIResource):
     async def retrieve(self, club_id: int) -> DetailedClub:
+        """Retrieve a club's detailed representation."""
         return await self._client._request_model(
             "GET", f"/clubs/{club_id}", model_cls=DetailedClub
         )
@@ -35,6 +38,7 @@ class AsyncClubs(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryClub]:
+        """Lazily list the athlete's clubs; per_page is not a total limit."""
         return self._paginated_get(
             "/athlete/clubs",
             model_cls=SummaryClub,

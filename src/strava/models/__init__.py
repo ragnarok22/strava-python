@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from strava.models._enums import (
+    ActivityTag,
     ActivityType,
+    ActivityVisibility,
     SportType,
     WebhookAspectType,
     WebhookObjectType,
@@ -76,8 +78,10 @@ from strava.models.webhooks import (
 
 __all__ = [
     "ActivityStats",
+    "ActivityTag",
     "ActivityTotal",
     "ActivityType",
+    "ActivityVisibility",
     "ActivityZone",
     "AltitudeStream",
     "BaseStream",

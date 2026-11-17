@@ -25,7 +25,12 @@ T = TypeVar("T", bound=StravaModel)
 
 
 class AsyncStrava:
-    """Asynchronous Strava API v3 client."""
+    """Asynchronous Strava API v3 client with lazy resource pagination.
+
+    Use as an async context manager or await close() to release SDK-owned
+    connections. Supplied HTTP clients remain caller-owned. API HTTP failures
+    raise StravaError subclasses; network failures retain HTTPX exception types.
+    """
 
     activities: AsyncActivities
     athletes: AsyncAthletes
@@ -173,6 +178,7 @@ class AsyncStrava:
         return response.content
 
     async def close(self) -> None:
+        """Close SDK-owned connections, leaving a supplied HTTP client open."""
         if self._owns_http_client:
             await self._http.aclose()
 

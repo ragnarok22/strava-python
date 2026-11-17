@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import IO, Any
 
 from strava._serialization import to_form_data
 from strava._types import NOT_GIVEN, NotGiven
-from strava.models._enums import SportType
+from strava.models._enums import ActivityTag, ActivityVisibility, SportType
 from strava.models.uploads import Upload
+from strava.resources._activity_options import activity_tag_data
 from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
 
@@ -18,6 +20,8 @@ def _upload_create_data(
     commute: bool | NotGiven = NOT_GIVEN,
     data_type: str | NotGiven = NOT_GIVEN,
     external_id: str | NotGiven = NOT_GIVEN,
+    visibility: ActivityVisibility | str | NotGiven = NOT_GIVEN,
+    tags: Mapping[str, bool] | Mapping[ActivityTag, bool] | NotGiven = NOT_GIVEN,
 ) -> dict[str, Any]:
     return to_form_data(
         {
@@ -28,8 +32,9 @@ def _upload_create_data(
             "commute": commute,
             "data_type": data_type,
             "external_id": external_id,
+            "visibility": visibility,
         }
-    )
+    ) | activity_tag_data(tags, commute=commute, form=True)
 
 
 def _upload_files(file: IO[bytes] | bytes | None) -> dict[str, Any] | None:
@@ -52,12 +57,18 @@ class Uploads(SyncAPIResource):
         commute: bool | NotGiven = NOT_GIVEN,
         data_type: str | NotGiven = NOT_GIVEN,
         external_id: str | NotGiven = NOT_GIVEN,
+        visibility: ActivityVisibility | str | NotGiven = NOT_GIVEN,
+        tags: Mapping[str, bool] | Mapping[ActivityTag, bool] | NotGiven = NOT_GIVEN,
     ) -> Upload:
-        """Upload FIT, TCX, GPX, or strength-training JSON data for processing.
+        """Upload FIT, TCX, GPX, or strength-training JSON; needs ``activity:write``.
 
         ``sport_type`` overrides the file's detected sport when supplied. JSON
         uploads support WeightTraining, HighIntensityIntervalTraining, Workout,
         and Crossfit only. Supply ``data_type="json"`` for JSON files.
+
+        ``visibility`` restricts the resulting activity to ``followers_only`` or
+        ``only_me``. ``tags`` maps supported tag names to booleans (add/remove)
+        and cannot be combined with legacy ``commute``, even ``commute=False``.
         """
         data = _upload_create_data(
             sport_type=sport_type,
@@ -67,6 +78,8 @@ class Uploads(SyncAPIResource):
             commute=commute,
             data_type=data_type,
             external_id=external_id,
+            visibility=visibility,
+            tags=tags,
         )
         files = _upload_files(file)
         return self._client._request_model(
@@ -74,6 +87,7 @@ class Uploads(SyncAPIResource):
         )
 
     def retrieve(self, upload_id: int) -> Upload:
+        """Check upload status and its resulting activity ID; needs ``activity:write``."""
         return self._client._request_model(
             "GET", f"/uploads/{upload_id}", model_cls=Upload
         )
@@ -91,12 +105,18 @@ class AsyncUploads(AsyncAPIResource):
         commute: bool | NotGiven = NOT_GIVEN,
         data_type: str | NotGiven = NOT_GIVEN,
         external_id: str | NotGiven = NOT_GIVEN,
+        visibility: ActivityVisibility | str | NotGiven = NOT_GIVEN,
+        tags: Mapping[str, bool] | Mapping[ActivityTag, bool] | NotGiven = NOT_GIVEN,
     ) -> Upload:
-        """Upload FIT, TCX, GPX, or strength-training JSON data for processing.
+        """Upload FIT, TCX, GPX, or strength-training JSON; needs ``activity:write``.
 
         ``sport_type`` overrides the file's detected sport when supplied. JSON
         uploads support WeightTraining, HighIntensityIntervalTraining, Workout,
         and Crossfit only. Supply ``data_type="json"`` for JSON files.
+
+        ``visibility`` restricts the resulting activity to ``followers_only`` or
+        ``only_me``. ``tags`` maps supported tag names to booleans (add/remove)
+        and cannot be combined with legacy ``commute``, even ``commute=False``.
         """
         data = _upload_create_data(
             sport_type=sport_type,
@@ -106,6 +126,8 @@ class AsyncUploads(AsyncAPIResource):
             commute=commute,
             data_type=data_type,
             external_id=external_id,
+            visibility=visibility,
+            tags=tags,
         )
         files = _upload_files(file)
         return await self._client._request_model(
@@ -113,6 +135,7 @@ class AsyncUploads(AsyncAPIResource):
         )
 
     async def retrieve(self, upload_id: int) -> Upload:
+        """Check upload status and its resulting activity ID; needs ``activity:write``."""
         return await self._client._request_model(
             "GET", f"/uploads/{upload_id}", model_cls=Upload
         )

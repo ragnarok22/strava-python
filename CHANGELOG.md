@@ -5,6 +5,23 @@
 ### Added
 
 - Expose optional `id_str` on all meta, summary, and detailed activity and athlete models, including nested and OAuth athlete responses. Accept integer or string activity and athlete IDs across sync and async endpoints for Strava's 64-bit ID transition after June 1, 2027, while preserving the existing integer `id` fields.
+- Add configurable timeouts and caller-owned HTTP clients to OAuth helpers, plus nonblocking `async_exchange_token()`, `async_refresh_access_token()`, and `async_revoke_token()` helpers.
+- Support activity visibility and tags in sync and async activity creation, updates, and uploads, with `ActivityVisibility` and `ActivityTag` enums and validation of conflicts with legacy `commute` parameters.
+- Add practical API, OAuth security, usage, and migration documentation, including scopes, units, rate limits, and transport error handling.
+
+### Fixed
+
+- Coordinate automatic OAuth refresh across concurrent requests on a client to avoid duplicate successful refreshes and token rotations.
+- Hide access and refresh tokens from `TokenResponse` representations.
+- Bound Quick Start examples to ten activities instead of fetching the athlete's entire history.
+
+### Changed
+
+- Cache model type and field metadata per concrete class while preserving subclass parsing, dynamic aliases, and existing instance layouts.
+- Use a 30-second default timeout for OAuth helpers, consistent with SDK requests; pass `timeout` explicitly to override it.
+- Run formatting and lint once per CI run and collect coverage only on Python 3.14, retaining tests and type checks on every supported Python version.
+- Verify release tags against package metadata and smoke-test installed wheels, including the `py.typed` marker, before publication.
+- Set the async fixture loop scope explicitly to avoid changes in pytest-asyncio defaults.
 
 ## [0.6.0] - 2026-10-05
 

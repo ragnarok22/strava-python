@@ -25,7 +25,12 @@ T = TypeVar("T", bound=StravaModel)
 
 
 class Strava:
-    """Synchronous Strava API v3 client."""
+    """Synchronous Strava API v3 client with lazy resource pagination.
+
+    Use as a context manager or call close() to release SDK-owned connections.
+    Supplied HTTP clients remain caller-owned. API HTTP failures raise
+    StravaError subclasses; network failures retain HTTPX exception types.
+    """
 
     activities: Activities
     athletes: Athletes
@@ -173,6 +178,7 @@ class Strava:
         return response.content
 
     def close(self) -> None:
+        """Close SDK-owned connections, leaving a supplied HTTP client open."""
         if self._owns_http_client:
             self._http.close()
 

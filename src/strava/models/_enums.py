@@ -3,6 +3,19 @@ from __future__ import annotations
 from enum import StrEnum
 
 
+class ActivityVisibility(StrEnum):
+    FOLLOWERS_ONLY = "followers_only"
+    ONLY_ME = "only_me"
+
+
+class ActivityTag(StrEnum):
+    WITH_PET = "WithPet"
+    RECOVERY = "Recovery"
+    COMPETITION = "Competition"
+    FOR_A_CAUSE = "ForACause"
+    COMMUTE = "Commute"
+
+
 class SportType(StrEnum):
     ALPINE_SKI = "AlpineSki"
     BACKCOUNTRY_SKI = "BackcountrySki"

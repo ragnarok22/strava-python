@@ -8,14 +8,17 @@ from strava.resources._base import AsyncAPIResource, SyncAPIResource
 
 class Routes(SyncAPIResource):
     def retrieve(self, route_id: int) -> Route:
+        """Retrieve a route; private routes require read_all."""
         return self._client._request_model(
             "GET", f"/routes/{route_id}", model_cls=Route
         )
 
     def export_gpx(self, route_id: int) -> bytes:
+        """Download GPX bytes; private routes require read_all."""
         return self._client._request_bytes("GET", f"/routes/{route_id}/export_gpx")
 
     def export_tcx(self, route_id: int) -> bytes:
+        """Download TCX bytes; private routes require read_all."""
         return self._client._request_bytes("GET", f"/routes/{route_id}/export_tcx")
 
     def list_by_athlete(
@@ -24,6 +27,7 @@ class Routes(SyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[Route]:
+        """Lazily list routes; per_page sets page size, not the total limit."""
         return self._paginated_get(
             f"/athletes/{athlete_id}/routes",
             model_cls=Route,
@@ -33,16 +37,19 @@ class Routes(SyncAPIResource):
 
 class AsyncRoutes(AsyncAPIResource):
     async def retrieve(self, route_id: int) -> Route:
+        """Retrieve a route; private routes require read_all."""
         return await self._client._request_model(
             "GET", f"/routes/{route_id}", model_cls=Route
         )
 
     async def export_gpx(self, route_id: int) -> bytes:
+        """Download GPX bytes; private routes require read_all."""
         return await self._client._request_bytes(
             "GET", f"/routes/{route_id}/export_gpx"
         )
 
     async def export_tcx(self, route_id: int) -> bytes:
+        """Download TCX bytes; private routes require read_all."""
         return await self._client._request_bytes(
             "GET", f"/routes/{route_id}/export_tcx"
         )
@@ -53,6 +60,7 @@ class AsyncRoutes(AsyncAPIResource):
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[Route]:
+        """Lazily list routes; per_page sets page size, not the total limit."""
         return self._paginated_get(
             f"/athletes/{athlete_id}/routes",
             model_cls=Route,

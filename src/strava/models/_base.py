@@ -5,6 +5,7 @@ import types
 import typing
 from datetime import datetime
 from enum import Enum
+from functools import lru_cache
 from typing import (
     Any,
     ClassVar,
@@ -26,6 +27,14 @@ class _Dataclass(Protocol):
 class _FromDict(Protocol):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self: ...
+
+
+@lru_cache(maxsize=128)
+def _model_metadata(
+    cls: type[_Dataclass],
+) -> tuple[dict[str, Any], frozenset[str]]:
+    """Resolve metadata once per concrete class, including consumer subclasses."""
+    return get_type_hints(cls), frozenset(f.name for f in dataclasses.fields(cls))
 
 
 def _is_dataclass_type(tp: object) -> bool:
@@ -103,19 +112,25 @@ def _coerce_value(value: Any, target_type: Any) -> Any:
 
 
 class StravaModel:
+    """Parsing and serialization helpers shared by API dataclasses.
+
+    Keep an instance dictionary for backwards-compatible dynamic attributes;
+    concrete dataclasses still declare their fields with slots.
+    """
+
     _field_aliases: ClassVar[dict[str, str]] = {}
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
+        """Parse known fields, nested models, enums and UTC-normalized dates."""
         if not data:
             return cls()
 
         # Build reverse alias map: api_name -> field_name
         reverse_aliases = {v: k for k, v in cls._field_aliases.items()}
 
-        hints = get_type_hints(cls)
-        # Concrete SDK models are dataclasses; keep the base class layout intact.
-        field_names = {f.name for f in dataclasses.fields(cast(type[_Dataclass], cls))}
+        # Keep aliases dynamic, but avoid resolving annotations for every API item.
+        hints, field_names = _model_metadata(cast(type[_Dataclass], cls))
         kwargs: dict[str, Any] = {}
 
         for key, value in data.items():
@@ -130,6 +145,7 @@ class StravaModel:
         return cls(**kwargs)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize declared fields with API aliases, omitting None values."""
         result: dict[str, Any] = {}
         aliases = self._field_aliases
         for f in dataclasses.fields(cast(_Dataclass, self)):
