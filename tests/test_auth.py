@@ -145,7 +145,12 @@ class TestTokenResponses:
                     "expires_in": 21600,
                     "token_type": "Bearer",
                     "scope": scope,
-                    "athlete": {"id": 123, "firstname": "Jane", "lastname": "Doe"},
+                    "athlete": {
+                        "id": 2**63 - 1,
+                        "id_str": str(2**63 - 1),
+                        "firstname": "Jane",
+                        "lastname": "Doe",
+                    },
                 },
             )
         )
@@ -159,7 +164,8 @@ class TestTokenResponses:
         assert tokens.token_type == "Bearer"
         assert tokens.scope == scope
         assert isinstance(tokens.athlete, SummaryAthlete)
-        assert tokens.athlete.id == 123
+        assert tokens.athlete.id == 2**63 - 1
+        assert tokens.athlete.id_str == str(2**63 - 1)
         assert tokens.athlete.firstname == "Jane"
         assert parse_qs(route.calls.last.request.content.decode()) == {
             "client_id": ["12345"],

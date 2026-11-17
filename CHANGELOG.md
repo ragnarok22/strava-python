@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Expose optional `id_str` on all meta, summary, and detailed activity and athlete models, including nested and OAuth athlete responses. Accept integer or string activity and athlete IDs across sync and async endpoints for Strava's 64-bit ID transition after June 1, 2027, while preserving the existing integer `id` fields.
+
 ## [0.6.0] - 2026-10-05
 
 ### Breaking Changes

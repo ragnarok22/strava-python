@@ -14,11 +14,13 @@ from strava.models.segments import DetailedSegmentEffort
 @dataclass(slots=True, kw_only=True)
 class MetaActivity(StravaModel):
     id: int | None = None
+    id_str: str | None = None
 
 
 @dataclass(slots=True, kw_only=True)
 class SummaryActivity(StravaModel):
     id: int | None = None
+    id_str: str | None = None
     resource_state: int | None = None
     external_id: str | None = None
     upload_id: int | None = None
@@ -75,6 +77,7 @@ class SummaryActivity(StravaModel):
 @dataclass(slots=True, kw_only=True)
 class DetailedActivity(StravaModel):
     id: int | None = None
+    id_str: str | None = None
     resource_state: int | None = None
     external_id: str | None = None
     upload_id: int | None = None

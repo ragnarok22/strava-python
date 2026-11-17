@@ -11,11 +11,13 @@ from strava.models.gear import SummaryGear
 @dataclass(slots=True, kw_only=True)
 class MetaAthlete(StravaModel):
     id: int | None = None
+    id_str: str | None = None
 
 
 @dataclass(slots=True, kw_only=True)
 class SummaryAthlete(StravaModel):
     id: int | None = None
+    id_str: str | None = None
     resource_state: int | None = None
     firstname: str | None = None
     lastname: str | None = None
@@ -34,6 +36,7 @@ class SummaryAthlete(StravaModel):
 @dataclass(slots=True, kw_only=True)
 class DetailedAthlete(StravaModel):
     id: int | None = None
+    id_str: str | None = None
     resource_state: int | None = None
     firstname: str | None = None
     lastname: str | None = None

@@ -30,7 +30,7 @@ class Streams(SyncAPIResource):
 
     def get_activity_streams(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         keys: list[str],
         key_by_type: Literal[True] = True,
@@ -85,7 +85,7 @@ class AsyncStreams(AsyncAPIResource):
 
     async def get_activity_streams(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         keys: list[str],
         key_by_type: Literal[True] = True,

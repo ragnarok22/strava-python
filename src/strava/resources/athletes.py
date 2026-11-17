@@ -20,7 +20,7 @@ class Athletes(SyncAPIResource):
     def retrieve_zones(self) -> Zones:
         return self._client._request_model("GET", "/athlete/zones", model_cls=Zones)
 
-    def retrieve_stats(self, athlete_id: int) -> ActivityStats:
+    def retrieve_stats(self, athlete_id: int | str) -> ActivityStats:
         return self._client._request_model(
             "GET", f"/athletes/{athlete_id}/stats", model_cls=ActivityStats
         )
@@ -45,7 +45,7 @@ class AsyncAthletes(AsyncAPIResource):
             "GET", "/athlete/zones", model_cls=Zones
         )
 
-    async def retrieve_stats(self, athlete_id: int) -> ActivityStats:
+    async def retrieve_stats(self, athlete_id: int | str) -> ActivityStats:
         return await self._client._request_model(
             "GET", f"/athletes/{athlete_id}/stats", model_cls=ActivityStats
         )

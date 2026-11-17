@@ -106,7 +106,7 @@ class Activities(SyncAPIResource):
 
     def retrieve(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         include_all_efforts: bool | NotGiven = NOT_GIVEN,
     ) -> DetailedActivity:
@@ -120,7 +120,7 @@ class Activities(SyncAPIResource):
 
     def update(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         name: str | NotGiven = NOT_GIVEN,
         description: str | NotGiven = NOT_GIVEN,
@@ -165,7 +165,7 @@ class Activities(SyncAPIResource):
 
     def list_comments(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         per_page: int | NotGiven = NOT_GIVEN,
         page_size: int | NotGiven = NOT_GIVEN,
@@ -184,7 +184,7 @@ class Activities(SyncAPIResource):
 
     def list_kudoers(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[SummaryAthlete]:
@@ -194,12 +194,12 @@ class Activities(SyncAPIResource):
             per_page=per_page,
         )
 
-    def list_laps(self, activity_id: int) -> builtins.list[Lap]:
+    def list_laps(self, activity_id: int | str) -> builtins.list[Lap]:
         return self._client._request_model_list(
             "GET", f"/activities/{activity_id}/laps", model_cls=Lap
         )
 
-    def list_zones(self, activity_id: int) -> builtins.list[ActivityZone]:
+    def list_zones(self, activity_id: int | str) -> builtins.list[ActivityZone]:
         return self._client._request_model_list(
             "GET", f"/activities/{activity_id}/zones", model_cls=ActivityZone
         )
@@ -236,7 +236,7 @@ class AsyncActivities(AsyncAPIResource):
 
     async def retrieve(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         include_all_efforts: bool | NotGiven = NOT_GIVEN,
     ) -> DetailedActivity:
@@ -250,7 +250,7 @@ class AsyncActivities(AsyncAPIResource):
 
     async def update(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         name: str | NotGiven = NOT_GIVEN,
         description: str | NotGiven = NOT_GIVEN,
@@ -295,7 +295,7 @@ class AsyncActivities(AsyncAPIResource):
 
     def list_comments(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         per_page: int | NotGiven = NOT_GIVEN,
         page_size: int | NotGiven = NOT_GIVEN,
@@ -314,7 +314,7 @@ class AsyncActivities(AsyncAPIResource):
 
     def list_kudoers(
         self,
-        activity_id: int,
+        activity_id: int | str,
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[SummaryAthlete]:
@@ -324,12 +324,12 @@ class AsyncActivities(AsyncAPIResource):
             per_page=per_page,
         )
 
-    async def list_laps(self, activity_id: int) -> builtins.list[Lap]:
+    async def list_laps(self, activity_id: int | str) -> builtins.list[Lap]:
         return await self._client._request_model_list(
             "GET", f"/activities/{activity_id}/laps", model_cls=Lap
         )
 
-    async def list_zones(self, activity_id: int) -> builtins.list[ActivityZone]:
+    async def list_zones(self, activity_id: int | str) -> builtins.list[ActivityZone]:
         return await self._client._request_model_list(
             "GET", f"/activities/{activity_id}/zones", model_cls=ActivityZone
         )

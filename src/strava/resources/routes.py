@@ -20,7 +20,7 @@ class Routes(SyncAPIResource):
 
     def list_by_athlete(
         self,
-        athlete_id: int,
+        athlete_id: int | str,
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> SyncPaginator[Route]:
@@ -49,7 +49,7 @@ class AsyncRoutes(AsyncAPIResource):
 
     def list_by_athlete(
         self,
-        athlete_id: int,
+        athlete_id: int | str,
         *,
         per_page: int | NotGiven = NOT_GIVEN,
     ) -> AsyncPaginator[Route]:

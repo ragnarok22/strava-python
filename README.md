@@ -197,6 +197,36 @@ revoke_token(
 | **Uploads** | `create`, `retrieve` |
 | **Webhooks** | `create`, `list`, `delete` |
 
+### Activity and athlete identifiers
+
+After June 1, 2027, Strava activity and athlete IDs may use 64-bit integers.
+Python's `int` and this SDK's JSON parsing preserve these values exactly, so
+existing code using `id` remains supported.
+
+The `Meta`, `Summary`, and `Detailed` activity and athlete models also expose
+`id_str: str | None`, including nested objects and the athlete in OAuth token
+responses. Both fields preserve the values returned by Strava; neither is
+generated from the other. Missing or null `id_str` values remain `None` and are
+omitted by `to_dict()`.
+
+All sync and async endpoints taking `activity_id` or `athlete_id` accept either
+`int` or `str`, so you can pass `id_str` directly when it is available:
+
+```python
+with Strava(access_token="your_token") as client:
+    athlete = client.athletes.retrieve_authenticated()
+    if athlete.id_str is not None:
+        stats = client.athletes.retrieve_stats(athlete.id_str)
+    elif athlete.id is not None:
+        stats = client.athletes.retrieve_stats(athlete.id)
+```
+
+Strava recommends using `id_str` going forward. Prefer string identifiers when
+sending data to JavaScript, whose `Number` cannot represent every integer above
+`2**53 - 1` exactly. For older responses without `id_str`, convert a non-null
+`id` to `str` in Python before sending it to JavaScript. Also review downstream
+storage for 32-bit integer limits.
+
 ### Activity and segment response fields
 
 Both `SummaryActivity` and `DetailedActivity` expose optional `resource_state`,
